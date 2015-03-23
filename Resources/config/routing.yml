@@ -1,0 +1,4 @@
+claro_workspace_users_bundle:
+    resource: "@ClarolineWorkspaceUsersBundle/Controller/"
+    type:     annotation
+    prefix:   /

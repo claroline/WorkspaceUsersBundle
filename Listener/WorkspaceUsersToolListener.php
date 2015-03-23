@@ -18,7 +18,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  *  @DI\Service()
  */
-class Claroline_workspace_users_toolListener
+class WorkspaceUsersToolListener
 {
     private $container;
 

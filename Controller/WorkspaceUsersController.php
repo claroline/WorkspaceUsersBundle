@@ -99,7 +99,8 @@ class WorkspaceUsersController extends Controller
         $order = 'ASC'
     )
     {
-        $this->checkWorkspaceAccess($workspace);
+        $this->checkWorkspaceUsersToolAccess($workspace);
+        $canEdit = $this->hasWorkspaceUsersToolEditionAccess($workspace);
         $wsRoles = $this->roleManager->getRolesByWorkspace($workspace);
         $preferences = $this->facetManager->getVisiblePublicPreference();
 
@@ -116,7 +117,8 @@ class WorkspaceUsersController extends Controller
             'orderedBy' => $orderedBy,
             'order' => $order,
             'currentUser' => $authenticatedUser,
-            'showMail' => $preferences['mail']
+            'showMail' => $preferences['mail'],
+            'canEdit' => $canEdit
         );
     }
     /**
@@ -136,7 +138,8 @@ class WorkspaceUsersController extends Controller
         $order = 'ASC'
     )
     {
-        $this->checkWorkspaceAccess($workspace);
+        $this->checkWorkspaceUsersToolAccess($workspace);
+        $this->checkWorkspaceUsersToolEditionAccess($workspace);
         $roles = $this->roleManager->getRolesByWorkspace(
             $workspace,
             $search,
@@ -155,6 +158,25 @@ class WorkspaceUsersController extends Controller
 
     /**
      * @EXT\Route(
+     *     "workspace/{workspace}/pending/users/list",
+     *     name="claro_workspace_users_pending_list"
+     * )
+     * @EXT\ParamConverter("authenticatedUser", options={"authenticatedUser" = true})
+     * @EXT\Template()
+     */
+    public function workspaceUsersPendingListAction(Workspace $workspace)
+    {
+        $this->checkWorkspaceUsersToolAccess($workspace);
+        $this->checkWorkspaceUsersToolEditionAccess($workspace);
+
+        return array(
+            'workspace' => $workspace,
+            'pager' => $this->wksUqmanager->getAll($workspace)
+        );
+    }
+
+    /**
+     * @EXT\Route(
      *     "workspace/{workspace}/role/create/form",
      *     name="claro_workspace_users_role_create_form",
      *     options={"expose"=true}
@@ -164,7 +186,8 @@ class WorkspaceUsersController extends Controller
      */
     public function workspaceRoleCreateFormAction(Workspace $workspace)
     {
-        $this->checkWorkspaceAccess($workspace);
+        $this->checkWorkspaceUsersToolAccess($workspace);
+        $this->checkWorkspaceUsersToolEditionAccess($workspace);
         $form = $this->formFactory->create(new WorkspaceRoleType());
 
         return array('workspace' => $workspace, 'form' => $form->createView());
@@ -181,7 +204,8 @@ class WorkspaceUsersController extends Controller
      */
     public function workspaceRoleCreateAction(Workspace $workspace, User $authenticatedUser)
     {
-        $this->checkWorkspaceAccess($workspace);
+        $this->checkWorkspaceUsersToolAccess($workspace);
+        $this->checkWorkspaceUsersToolEditionAccess($workspace);
         $role = new Role();
         $form = $this->formFactory->create(new WorkspaceRoleType(), $role);
         $form->handleRequest($this->request);
@@ -264,7 +288,8 @@ class WorkspaceUsersController extends Controller
      */
     public function workspaceRoleEditFormAction(Role $role, Workspace $workspace)
     {
-        $this->checkWorkspaceAccess($workspace);
+        $this->checkWorkspaceUsersToolAccess($workspace);
+        $this->checkWorkspaceUsersToolEditionAccess($workspace);
         $form = $this->formFactory->create(
             new RoleTranslationType($workspace->getGuid()),
             $role
@@ -288,7 +313,8 @@ class WorkspaceUsersController extends Controller
      */
     public function workspaceRoleEditAction(Role $role, Workspace $workspace)
     {
-        $this->checkWorkspaceAccess($workspace);
+        $this->checkWorkspaceUsersToolAccess($workspace);
+        $this->checkWorkspaceUsersToolEditionAccess($workspace);
         $form = $this->formFactory->create(
             new RoleTranslationType($workspace->getGuid()),
             $role
@@ -312,11 +338,28 @@ class WorkspaceUsersController extends Controller
         }
     }
 
-    private function checkWorkspaceAccess(Workspace $workspace)
+    private function checkWorkspaceUsersToolAccess(Workspace $workspace)
     {
-        if (!$this->securityContext->isGranted('workspace_users', $workspace)) {
+        if (!$this->securityContext->isGranted('claroline_workspace_users_tool', $workspace)) {
 
             throw new AccessDeniedException();
         }
+    }
+
+    private function checkWorkspaceUsersToolEditionAccess(Workspace $workspace)
+    {
+        if (!$this->securityContext->isGranted('claroline_workspace_users_tool', 'edit', $workspace)) {
+
+            throw new AccessDeniedException();
+        }
+    }
+
+    private function hasWorkspaceUsersToolEditionAccess(Workspace $workspace)
+    {
+        return $this->securityContext->isGranted(
+            'claroline_workspace_users_tool',
+            'edit',
+            $workspace
+        );
     }
 }

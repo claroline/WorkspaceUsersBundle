@@ -23,6 +23,7 @@ use Claroline\CoreBundle\Manager\RoleManager;
 use Claroline\CoreBundle\Manager\UserManager;
 use Claroline\CoreBundle\Manager\WorkspaceUserQueueManager;
 use Claroline\WorkspaceUsersBundle\Form\WorkspaceRoleType;
+use Claroline\WorkspaceUsersBundle\Manager\WorkspaceUsersManager;
 use JMS\DiExtraBundle\Annotation as DI;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration as EXT;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -42,6 +43,7 @@ class WorkspaceUsersController extends Controller
     private $roleManager;
     private $securityContext;
     private $userManager;
+    private $workspaceUsersManager;
     private $workspaceUserQueueManager;
 
     /**
@@ -54,6 +56,7 @@ class WorkspaceUsersController extends Controller
      *     "roleManager"               = @DI\Inject("claroline.manager.role_manager"),
      *     "securityContext"           = @DI\Inject("security.context"),
      *     "userManager"               = @DI\Inject("claroline.manager.user_manager"),
+     *     "workspaceUsersManager"     = @DI\Inject("claroline.manager.workspace_users_manager"),
      *     "workspaceUserQueueManager" = @DI\Inject("claroline.manager.workspace_user_queue_manager")
      * })
      */
@@ -66,6 +69,7 @@ class WorkspaceUsersController extends Controller
         RoleManager $roleManager,
         SecurityContextInterface $securityContext,
         UserManager $userManager,
+        WorkspaceUsersManager $workspaceUsersManager,
         WorkspaceUserQueueManager $workspaceUserQueueManager
     )
     {
@@ -77,6 +81,7 @@ class WorkspaceUsersController extends Controller
         $this->roleManager = $roleManager;
         $this->securityContext = $securityContext;
         $this->userManager = $userManager;
+        $this->workspaceUsersManager = $workspaceUsersManager;
         $this->workspaceUserQueueManager = $workspaceUserQueueManager;
     }
 
@@ -349,7 +354,6 @@ class WorkspaceUsersController extends Controller
      *     name="claro_workspace_users_accept_pending_user",
      *     options={"expose"=true}
      * )
-     * @EXT\Method("POST")
      */
     public function pendingUsersValidationAction(
         WorkspaceRegistrationQueue $workspaceRegistrationQueue,
@@ -357,11 +361,12 @@ class WorkspaceUsersController extends Controller
     )
     {
         $this->checkWorkspaceUsersToolEditionAccess($workspace);
-        $queueId = $workspaceRegistrationQueue->getId();
         $this->workspaceUserQueueManager->validateRegistration(
             $workspaceRegistrationQueue,
             $workspace
         );
+        $user = $workspaceRegistrationQueue->getUser();
+        $this->workspaceUsersManager->addWorkspaceUser($workspace, $user, false);
 
         return new JsonResponse('success', 200);
     }
@@ -372,7 +377,6 @@ class WorkspaceUsersController extends Controller
      *     name="claro_workspace_users_decline_pending_user",
      *     options={"expose"=true}
      * )
-     * @EXT\Method("POST")
      */
     public function pendingUsersDeclineAction(
         WorkspaceRegistrationQueue $workspaceRegistrationQueue,
@@ -380,7 +384,6 @@ class WorkspaceUsersController extends Controller
     )
     {
         $this->checkWorkspaceUsersToolEditionAccess($workspace);
-        $queueId = $workspaceRegistrationQueue->getId();
         $this->workspaceUserQueueManager->removeRegistrationQueue($workspaceRegistrationQueue);
 
         return new JsonResponse('success', 200);

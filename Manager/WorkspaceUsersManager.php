@@ -9,12 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Claroline\CursusBundle\Manager;
+namespace Claroline\WorkspaceUsersBundle\Manager;
 
 use Claroline\CoreBundle\Entity\User;
 use Claroline\CoreBundle\Entity\Workspace\Workspace;
 use Claroline\CoreBundle\Pager\PagerFactory;
 use Claroline\CoreBundle\Persistence\ObjectManager;
+use Claroline\WorkspaceUsersBundle\Entity\WorkspaceUser;
 use JMS\DiExtraBundle\Annotation as DI;
 
 /**
@@ -41,6 +42,20 @@ class WorkspaceUsersManager
         $this->pagerFactory = $pagerFactory;
         $this->workspaceUserRepo =
             $om->getRepository('ClarolineWorkspaceUsersBundle:WorkspaceUser');
+    }
+
+    public function addWorkspaceUser(Workspace $workspace, User $user, $created)
+    {
+        $workspaceUser = $this->getOneWorkspaceUserByWorkspaceAndUser($workspace, $user);
+
+        if (is_null($workspaceUser)) {
+            $workspaceUser = new WorkspaceUser();
+            $workspaceUser->setWorkspace($workspace);
+            $workspaceUser->setUser($user);
+            $workspaceUser->setCreated($created);
+            $this->om->persist($workspaceUser);
+            $this->om->flush();
+        }
     }
 
     public function getOneWorkspaceUserByWorkspaceAndUser(

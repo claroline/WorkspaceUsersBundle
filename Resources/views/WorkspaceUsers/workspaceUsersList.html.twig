@@ -99,14 +99,14 @@
                 </div>
             {% endif %}
             <div class="row">
-                {#<div class="col-md-8">
+                <div class="col-md-8">
                     <div class="btn-group margin-md">
                         <a href="{{ path('claro_workspace_unregistered_user_list', {'workspace': workspace.getId()}) }}" class="btn btn-default dropdown-toggle" role="button">
                             <i class="fa fa-plus"></i> {{ 'add_users'|trans({}, 'platform') }}
                         </a>
-                        <a href="{{ path('claro_message_form_for_workspace', {'workspace': workspace.getId()}) }}" class="btn btn-default dropdown-toggle" role="button">
+                        {#<a href="{{ path('claro_message_form_for_workspace', {'workspace': workspace.getId()}) }}" class="btn btn-default dropdown-toggle" role="button">
                             <i class="fa fa-envelope"></i> {{ 'send_message_to_workspace'|trans({}, 'platform') }}
-                        </a>
+                        </a>#}
                         <a class="btn btn-default action-button table-control"
                             href="{{ path('claro_workspace_export_users', {'format': 'xls', 'workspace': workspace.getId()}) }}">
                             {{ 'excel_export'|trans({}, 'platform') }}
@@ -116,32 +116,31 @@
                             {{ 'csv_export'|trans({}, 'platform') }}
                         </a>
                     </div>
-                </div>#}
-                
-                <div class="input-group col-md-4 pull-right">
-                    <input class="form-control search-user"
-                           type="text"
-                           id="search-user-input"
-                           placeholder="{{ 'search'|trans({}, 'platform') }}"
-                           value="{{ search }}"
-                           data-ordered-by="{{ orderedBy }}"
-                           data-order="{{ order }}"
-                           data-max="{{ max }}"
-                    >
-                    <span class="input-group-btn">
-                        <button class="filter btn btn-default search-user-btn"
-                                type="button"
-                                id="search-user-btn"
-                                data-ordered-by="{{ orderedBy }}"
-                                data-order="{{ order }}"
-                                data-max="{{ max }}"
-                        >
-                            <i class="fa fa-search"></i>
-                        </button>
-                    </span>
                 </div>
-                <br>
-                <br>
+                <div class="col-md-4">
+                    <div class="input-group margin-md">
+                        <input class="form-control search-user"
+                               type="text"
+                               id="search-user-input"
+                               placeholder="{{ 'search'|trans({}, 'platform') }}"
+                               value="{{ search }}"
+                               data-ordered-by="{{ orderedBy }}"
+                               data-order="{{ order }}"
+                               data-max="{{ max }}"
+                        >
+                        <span class="input-group-btn">
+                            <button class="filter btn btn-default search-user-btn"
+                                    type="button"
+                                    id="search-user-btn"
+                                    data-ordered-by="{{ orderedBy }}"
+                                    data-order="{{ order }}"
+                                    data-max="{{ max }}"
+                            >
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </span>
+                    </div>
+                </div>
             </div>
 
             <div class="row">

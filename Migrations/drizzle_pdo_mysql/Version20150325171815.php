@@ -1,6 +1,6 @@
 <?php
 
-namespace Claroline\WorkspaceUsersBundle\Migrations\sqlanywhere;
+namespace Claroline\WorkspaceUsersBundle\Migrations\drizzle_pdo_mysql;
 
 use Doctrine\DBAL\Migrations\AbstractMigration;
 use Doctrine\DBAL\Schema\Schema;
@@ -8,29 +8,24 @@ use Doctrine\DBAL\Schema\Schema;
 /**
  * Auto-generated migration based on mapping information: modify it with caution
  *
- * Generation date: 2015/03/25 04:52:36
+ * Generation date: 2015/03/25 05:18:17
  */
-class Version20150325165233 extends AbstractMigration
+class Version20150325171815 extends AbstractMigration
 {
     public function up(Schema $schema)
     {
         $this->addSql("
             CREATE TABLE claro_workspace_user (
-                id INT IDENTITY NOT NULL, 
+                id INT AUTO_INCREMENT NOT NULL, 
                 workspace_id INT NOT NULL, 
                 user_id INT NOT NULL, 
-                created BIT NOT NULL, 
-                PRIMARY KEY (id)
-            )
-        ");
-        $this->addSql("
-            CREATE INDEX IDX_C95C9D5A82D40A1F ON claro_workspace_user (workspace_id)
-        ");
-        $this->addSql("
-            CREATE INDEX IDX_C95C9D5AA76ED395 ON claro_workspace_user (user_id)
-        ");
-        $this->addSql("
-            CREATE UNIQUE INDEX workspace_users_unique_workspace_user ON claro_workspace_user (user_id, workspace_id)
+                created BOOLEAN NOT NULL, 
+                registration_date DATETIME NOT NULL, 
+                INDEX IDX_C95C9D5A82D40A1F (workspace_id), 
+                INDEX IDX_C95C9D5AA76ED395 (user_id), 
+                UNIQUE INDEX workspace_users_unique_workspace_user (user_id, workspace_id), 
+                PRIMARY KEY(id)
+            ) COLLATE utf8_unicode_ci ENGINE = InnoDB
         ");
         $this->addSql("
             ALTER TABLE claro_workspace_user 

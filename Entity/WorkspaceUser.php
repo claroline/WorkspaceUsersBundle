@@ -26,7 +26,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints as DoctrineAssert;
  *         )
  *     }
  * )
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Claroline\WorkspaceUsersBundle\Repository\WorkspaceUserRepository")
  * @DoctrineAssert\UniqueEntity({"workspace", "user"})
  */
 class WorkspaceUser
@@ -58,6 +58,11 @@ class WorkspaceUser
      * @ORM\Column(type="boolean", nullable=false)
      */
     protected $created;
+
+    /**
+     * @ORM\Column(name="registration_date", type="datetime", nullable=false)
+     */
+    protected $registrationDate;
 
     public function getId()
     {
@@ -97,5 +102,15 @@ class WorkspaceUser
     public function setCreated($created)
     {
         $this->created = $created;
+    }
+
+    public function getRegistrationDate()
+    {
+        return $this->registrationDate;
+    }
+
+    public function setRegistrationDate($registrationDate)
+    {
+        $this->registrationDate = $registrationDate;
     }
 }

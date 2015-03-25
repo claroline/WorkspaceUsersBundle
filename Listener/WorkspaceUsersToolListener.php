@@ -13,23 +13,30 @@ namespace Claroline\WorkspaceUsersBundle\Listener;
 
 use Claroline\CoreBundle\Event\DisplayToolEvent;
 use JMS\DiExtraBundle\Annotation as DI;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 /**
  *  @DI\Service()
  */
 class WorkspaceUsersToolListener
 {
-    private $container;
+    private $httpKernel;
+    private $request;
 
     /**
      * @DI\InjectParams({
-     *     "container" = @DI\Inject("service_container")
+     *     "httpKernel"         = @DI\Inject("http_kernel"),
+     *     "requestStack"       = @DI\Inject("request_stack")
      * })
      */
-    public function __construct(ContainerInterface $container)
+    public function __construct(
+        HttpKernelInterface $httpKernel,
+        RequestStack $requestStack
+    )
     {
-        $this->container = $container;
+        $this->httpKernel = $httpKernel;
+        $this->request = $requestStack->getCurrentRequest();
     }
 
     /**
@@ -37,18 +44,15 @@ class WorkspaceUsersToolListener
      *
      * @param DisplayToolEvent $event
      */
-    public function onDisplayWorkspaceAgenda(DisplayToolEvent $event)
+    public function onDisplayWorkspaceUsersTool(DisplayToolEvent $event)
     {
-        $event->setContent('Change me for workspace !');
-    }
-
-    /**
-     * @DI\Observe("open_tool_desktop_claroline_workspace_users_tool")
-     *
-     * @param DisplayToolEvent $event
-     */
-    public function onDisplayDesktopAgenda(DisplayToolEvent $event)
-    {
-        $event->setContent('Change me for desktop !');
+        $params = array();
+        $params['_controller'] = 'ClarolineWorkspaceUsersBundle:WorkspaceUsers:workspaceUsersList';
+        $params['workspace'] = $event->getWorkspace()->getId();
+        $subRequest = $this->request->duplicate(array(), null, $params);
+        $response = $this->httpKernel
+            ->handle($subRequest, HttpKernelInterface::SUB_REQUEST);
+        $event->setContent($response->getContent());
+        $event->stopPropagation();
     }
 }

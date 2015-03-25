@@ -1,0 +1,161 @@
+{% macro sortUrl(search, workspaceId, orderedBy, order) %}
+    {% if order == 'ASC' %}
+        {% set newOrder = 'DESC' %}
+    {% else %}
+        {% set newOrder = 'ASC' %}
+    {% endif %}
+
+    {{
+        path(
+            'claro_workspace_users_roles_list',
+            {
+                'workspace': workspaceId,
+                'search': search,
+                'orderedBy': orderedBy,
+                'order': newOrder
+            }
+        )
+    }}
+{% endmacro %}
+
+{% from _self import sortUrl %}
+
+{% extends 'ClarolineCoreBundle:Workspace:layout.html.twig' %}
+
+{% block title %}{{ parent() ~ ' - ' ~ "roles" | trans({}, "platform") | striptags | raw }}{% endblock %}
+
+{% block breadcrumb %}
+    {{
+        macros.workspaceBreadcrumbs(
+            workspace,
+            [
+                {
+                    'name': 'roles'|trans({}, 'platform'),
+                    'href': ''
+                },
+            ]
+        )
+    }}
+{% endblock %}
+
+{% block section_content %}
+    <div class="panel-body">
+        <ul class="nav nav-tabs margin-bottom-md">
+            <li>
+                <a href="{{ path('claro_workspace_users_registered_user_list', {'workspace': workspace.getId() }) }}">
+                    {{'users'|trans({}, 'platform') }}
+                </a>
+            </li>
+            <li class="active">
+                <a href="#">
+                    {{ 'roles'|trans({}, 'platform') }}
+                </a>
+            </li>
+            <li>
+                <a href="{{path('claro_users_pending',{'workspace':workspace.getId()})}}">
+                    {{'pending'|trans({},'platform') }}
+                </a>
+            </li>
+        </ul>
+        
+        <h3>{{ 'roles_management'|trans({}, 'platform') }}</h3>
+    </div>
+    <div class="list-group">
+        <div class="list-group-item">
+        
+            {% if search != '' %}
+                <div class="alert alert-info">
+                    {{ 'results_for_search_on'|trans({}, 'platform') }} :
+                    "{{ search }}"
+                </div>
+            {% endif %}
+            <div class="row">
+                <div class="col-md-8">
+                    <span class="btn btn-default" id="create-workspace-role-btn">
+                        <i class="fa fa-plus"></i>
+                        {{ 'add_role'|trans({}, 'platform') }}
+                    </span>
+                </div>
+                
+                <div class="input-group col-md-4 pull-right">
+                    <input class="form-control search-role"
+                           type="text"
+                           id="search-role-input"
+                           placeholder="{{ 'search'|trans({}, 'platform') }}"
+                           value="{{ search }}"
+                           data-ordered-by="{{ orderedBy }}"
+                           data-order="{{ order }}"
+                    >
+                    <span class="input-group-btn">
+                        <button class="filter btn btn-default search-role-btn"
+                                type="button"
+                                id="search-role-btn"
+                                data-ordered-by="{{ orderedBy }}"
+                                data-order="{{ order }}"
+                        >
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </span>
+                </div>
+                <br>
+                <br>
+                <br>
+            </div>
+            <div class="table-responsive">
+                <table class="table-striped table-bordered table-condensed" width="100%">
+                    <thead>
+                        <th>
+                            <a href="{{ sortUrl(search, workspace.getId(), 'translationKey', order) }}">
+                                {{ 'name'|trans({}, 'platform') }}
+                            </a>
+                        </th>
+                        <th>
+                            {{ 'edit'|trans({}, 'platform') }}
+                        </th>
+                        <th>
+                            {{ 'delete'|trans({}, 'platform') }}
+                        </th>
+                    </thead>
+                    <tbody id="roles-table-body">
+                        {% for role in roles %}
+                            <tr id="row-role-{{ role.getId() }}">
+                                <td id="row-role-name-{{ role.getId() }}">
+                                    {{ role.getTranslationKey|trans({}, 'platform') }}
+                                </td>
+                                <td>
+                                    <span class="btn btn-default edit-workspace-role-btn"
+                                          data-role-id="{{ role.getId() }}"
+                                    >
+                                        <i class="fa fa-pencil"></i>
+                                        {{ 'edit'|trans({}, 'platform') }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="btn btn-default delete-workspace-role-btn {% if role.isReadOnly %}disabled{% endif %}"
+                                          data-role-id="{{ role.getId() }}"
+                                    >
+                                        <i class="fa fa-trash-o"></i>
+                                        {{ 'delete'|trans({}, 'platform') }}
+                                    </span>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="workspace-users-datas-box"
+         data-workspace-id="{{ workspace.getId() }}"
+    >
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('bundles/clarolineworkspaceusers/js/workspaceRolesList.js') }}"
+            type="text/javascript"
+    >
+    </script>
+{% endblock %}

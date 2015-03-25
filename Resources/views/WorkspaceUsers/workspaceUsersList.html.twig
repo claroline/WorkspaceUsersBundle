@@ -73,13 +73,13 @@
             
             {% if canEdit %}
                 <li>
-                    <a href="{{ path('claro_workspace_users_roles_list', {'workspace': workspace.getId()} ) }}">
+                    <a href="{{ path('claro_workspace_users_roles_list', {'workspace': workspace.getId()}) }}">
                         {{ 'roles'|trans({}, 'platform') }}
                     </a>
                 </li>
                 <li>
-                    <a href="{{path('claro_users_pending',{'workspace':workspace.getId()})}}">
-                        {{'pending'|trans({},'platform') }}
+                    <a href="{{path('claro_workspace_users_pending_list', {'workspace': workspace.getId()})}}">
+                        {{ 'pending'|trans({},'platform') }}
                     </a>
                 </li>
             {% endif %}

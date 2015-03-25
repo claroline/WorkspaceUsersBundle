@@ -14,6 +14,7 @@ namespace Claroline\WorkspaceUsersBundle\Controller;
 use Claroline\CoreBundle\Entity\Role;
 use Claroline\CoreBundle\Entity\User;
 use Claroline\CoreBundle\Entity\Workspace\Workspace;
+use Claroline\CoreBundle\Entity\Workspace\WorkspaceRegistrationQueue;
 use Claroline\CoreBundle\Form\RoleTranslationType;
 use Claroline\CoreBundle\Manager\FacetManager;
 use Claroline\CoreBundle\Manager\ResourceManager;
@@ -138,7 +139,6 @@ class WorkspaceUsersController extends Controller
         $order = 'ASC'
     )
     {
-        $this->checkWorkspaceUsersToolAccess($workspace);
         $this->checkWorkspaceUsersToolEditionAccess($workspace);
         $roles = $this->roleManager->getRolesByWorkspace(
             $workspace,
@@ -158,20 +158,29 @@ class WorkspaceUsersController extends Controller
 
     /**
      * @EXT\Route(
-     *     "workspace/{workspace}/pending/users/list",
-     *     name="claro_workspace_users_pending_list"
+     *     "workspace/{workspace}/pending/users/list/page/{page}/max/{max}/search/{search}",
+     *     name="claro_workspace_users_pending_list",
+     *     defaults={"page"=1, "search"="", "max"=50},
+     *     options = {"expose"=true}
      * )
      * @EXT\ParamConverter("authenticatedUser", options={"authenticatedUser" = true})
      * @EXT\Template()
      */
-    public function workspaceUsersPendingListAction(Workspace $workspace)
+    public function workspacePendingUsersListAction(
+        Workspace $workspace,
+        $search = '',
+        $page = 1,
+        $max = 50
+    )
     {
-        $this->checkWorkspaceUsersToolAccess($workspace);
         $this->checkWorkspaceUsersToolEditionAccess($workspace);
+        $queues = $this->workspaceUserQueueManager->getAll($workspace, $page, $max, $search);
 
         return array(
             'workspace' => $workspace,
-            'pager' => $this->wksUqmanager->getAll($workspace)
+            'queues' => $queues,
+            'max' => $max,
+            'search' => $search
         );
     }
 
@@ -186,7 +195,6 @@ class WorkspaceUsersController extends Controller
      */
     public function workspaceRoleCreateFormAction(Workspace $workspace)
     {
-        $this->checkWorkspaceUsersToolAccess($workspace);
         $this->checkWorkspaceUsersToolEditionAccess($workspace);
         $form = $this->formFactory->create(new WorkspaceRoleType());
 
@@ -204,7 +212,6 @@ class WorkspaceUsersController extends Controller
      */
     public function workspaceRoleCreateAction(Workspace $workspace, User $authenticatedUser)
     {
-        $this->checkWorkspaceUsersToolAccess($workspace);
         $this->checkWorkspaceUsersToolEditionAccess($workspace);
         $role = new Role();
         $form = $this->formFactory->create(new WorkspaceRoleType(), $role);
@@ -288,7 +295,6 @@ class WorkspaceUsersController extends Controller
      */
     public function workspaceRoleEditFormAction(Role $role, Workspace $workspace)
     {
-        $this->checkWorkspaceUsersToolAccess($workspace);
         $this->checkWorkspaceUsersToolEditionAccess($workspace);
         $form = $this->formFactory->create(
             new RoleTranslationType($workspace->getGuid()),
@@ -313,7 +319,6 @@ class WorkspaceUsersController extends Controller
      */
     public function workspaceRoleEditAction(Role $role, Workspace $workspace)
     {
-        $this->checkWorkspaceUsersToolAccess($workspace);
         $this->checkWorkspaceUsersToolEditionAccess($workspace);
         $form = $this->formFactory->create(
             new RoleTranslationType($workspace->getGuid()),
@@ -336,6 +341,49 @@ class WorkspaceUsersController extends Controller
                 'form' => $form->createView()
             );
         }
+    }
+
+    /**
+     * @EXT\Route(
+     *     "workspace/{workspace}/pending/user/accept/queue/{workspaceRegistrationQueue}",
+     *     name="claro_workspace_users_accept_pending_user",
+     *     options={"expose"=true}
+     * )
+     * @EXT\Method("POST")
+     */
+    public function pendingUsersValidationAction(
+        WorkspaceRegistrationQueue $workspaceRegistrationQueue,
+        Workspace $workspace
+    )
+    {
+        $this->checkWorkspaceUsersToolEditionAccess($workspace);
+        $queueId = $workspaceRegistrationQueue->getId();
+        $this->workspaceUserQueueManager->validateRegistration(
+            $workspaceRegistrationQueue,
+            $workspace
+        );
+
+        return new JsonResponse('success', 200);
+    }
+
+    /**
+     * @EXT\Route(
+     *     "workspace/{workspace}/pending/user/pending/decline/queue/{workspaceRegistrationQueue}",
+     *     name="claro_workspace_users_decline_pending_user",
+     *     options={"expose"=true}
+     * )
+     * @EXT\Method("POST")
+     */
+    public function pendingUsersDeclineAction(
+        WorkspaceRegistrationQueue $workspaceRegistrationQueue,
+        Workspace $workspace
+    )
+    {
+        $this->checkWorkspaceUsersToolEditionAccess($workspace);
+        $queueId = $workspaceRegistrationQueue->getId();
+        $this->workspaceUserQueueManager->removeRegistrationQueue($workspaceRegistrationQueue);
+
+        return new JsonResponse('success', 200);
     }
 
     private function checkWorkspaceUsersToolAccess(Workspace $workspace)

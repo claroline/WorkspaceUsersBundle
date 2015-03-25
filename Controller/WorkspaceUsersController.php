@@ -348,7 +348,10 @@ class WorkspaceUsersController extends Controller
 
     private function checkWorkspaceUsersToolEditionAccess(Workspace $workspace)
     {
-        if (!$this->securityContext->isGranted('claroline_workspace_users_tool', 'edit', $workspace)) {
+        if (!$this->securityContext->isGranted(
+            array('claroline_workspace_users_tool', 'edit'),
+            $workspace
+        )) {
 
             throw new AccessDeniedException();
         }
@@ -357,8 +360,7 @@ class WorkspaceUsersController extends Controller
     private function hasWorkspaceUsersToolEditionAccess(Workspace $workspace)
     {
         return $this->securityContext->isGranted(
-            'claroline_workspace_users_tool',
-            'edit',
+            array('claroline_workspace_users_tool', 'edit'),
             $workspace
         );
     }

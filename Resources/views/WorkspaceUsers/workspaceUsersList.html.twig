@@ -99,6 +99,8 @@
                 </div>
             {% endif %}
             <div class="row">
+                
+                {% if canEdit %}
                 <div class="col-md-8">
                     <div class="btn-group margin-md">
                         <a href="{{ path('claro_workspace_unregistered_user_list', {'workspace': workspace.getId()}) }}" class="btn btn-default dropdown-toggle" role="button">
@@ -117,7 +119,8 @@
                         </a>
                     </div>
                 </div>
-                <div class="col-md-4">
+                {% endif %}
+                <div class="col-md-4 pull-right">
                     <div class="input-group margin-md">
                         <input class="form-control search-user"
                                type="text"
@@ -213,11 +216,14 @@
                                                   id="label-{{ role.getId() }}-{{ user.getId()}}"
                                             >
                                                 {{ role.getTranslationKey()|trans({}, 'platform') }}
-                                                <i class="fa fa-times-circle pointer-hand remove-role-button"
-                                                   href="{{ path('claro_workspace_remove_role_from_user', {'workspace': workspace.getId(), 'user': user.getId(), 'role': role.getId() } ) }}"
-                                                >
-                                                </i>
-                                                </span>
+                                                
+                                                {% if canEdit %}
+                                                    <i class="fa fa-times-circle pointer-hand remove-role-button"
+                                                       href="{{ path('claro_workspace_remove_role_from_user', {'workspace': workspace.getId(), 'user': user.getId(), 'role': role.getId() } ) }}"
+                                                    >
+                                                    </i>
+                                                {% endif %}
+                                            </span>
                                         {% endif %}
                                     {% endfor %}
 

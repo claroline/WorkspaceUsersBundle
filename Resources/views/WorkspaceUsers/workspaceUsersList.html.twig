@@ -103,12 +103,20 @@
                 {% if canEdit %}
                 <div class="col-md-8">
                     <div class="btn-group margin-md">
-                        <a href="{{ path('claro_workspace_unregistered_user_list', {'workspace': workspace.getId()}) }}" class="btn btn-default dropdown-toggle" role="button">
-                            <i class="fa fa-plus"></i> {{ 'add_users'|trans({}, 'platform') }}
+                        <a href="{{ path('claro_workspace_unregistered_user_list', {'workspace': workspace.getId()}) }}"
+                           class="btn btn-default dropdown-toggle"
+                           role="button"
+                        >
+                            <i class="fa fa-plus"></i>
+                            {{ 'add_users'|trans({}, 'platform') }}
                         </a>
-                        {#<a href="{{ path('claro_message_form_for_workspace', {'workspace': workspace.getId()}) }}" class="btn btn-default dropdown-toggle" role="button">
-                            <i class="fa fa-envelope"></i> {{ 'send_message_to_workspace'|trans({}, 'platform') }}
-                        </a>#}
+                        <a href="{{ path('claro_message_form_for_workspace', {'workspace': workspace.getId()}) }}"
+                           class="btn btn-default dropdown-toggle"
+                           role="button"
+                        >
+                            <i class="fa fa-envelope"></i>
+                            {{ 'send_message_to_workspace'|trans({}, 'platform') }}
+                        </a>
                         <a class="btn btn-default action-button table-control"
                             href="{{ path('claro_workspace_export_users', {'format': 'xls', 'workspace': workspace.getId()}) }}">
                             {{ 'excel_export'|trans({}, 'platform') }}

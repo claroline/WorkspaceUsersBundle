@@ -33,8 +33,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\FormFactory;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\SecurityContextInterface;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class WorkspaceUsersController extends Controller
 {
@@ -47,6 +49,8 @@ class WorkspaceUsersController extends Controller
     private $rightsManager;
     private $roleManager;
     private $securityContext;
+    private $session;
+    private $translator;
     private $userManager;
     private $workspaceUsersManager;
     private $workspaceUserQueueManager;
@@ -62,6 +66,8 @@ class WorkspaceUsersController extends Controller
      *     "rightsManager"             = @DI\Inject("claroline.manager.rights_manager"),
      *     "roleManager"               = @DI\Inject("claroline.manager.role_manager"),
      *     "securityContext"           = @DI\Inject("security.context"),
+     *     "session"                   = @DI\Inject("session"),
+     *     "translator"                = @DI\Inject("translator"),
      *     "userManager"               = @DI\Inject("claroline.manager.user_manager"),
      *     "workspaceUsersManager"     = @DI\Inject("claroline.manager.workspace_users_manager"),
      *     "workspaceUserQueueManager" = @DI\Inject("claroline.manager.workspace_user_queue_manager")
@@ -77,6 +83,8 @@ class WorkspaceUsersController extends Controller
         RightsManager $rightsManager,
         RoleManager $roleManager,
         SecurityContextInterface $securityContext,
+        SessionInterface $session,
+        TranslatorInterface $translator,
         UserManager $userManager,
         WorkspaceUsersManager $workspaceUsersManager,
         WorkspaceUserQueueManager $workspaceUserQueueManager
@@ -91,6 +99,8 @@ class WorkspaceUsersController extends Controller
         $this->rightsManager = $rightsManager;
         $this->roleManager = $roleManager;
         $this->securityContext = $securityContext;
+        $this->session = $session;
+        $this->translator = $translator;
         $this->userManager = $userManager;
         $this->workspaceUsersManager = $workspaceUsersManager;
         $this->workspaceUserQueueManager = $workspaceUserQueueManager;
@@ -230,20 +240,6 @@ class WorkspaceUsersController extends Controller
     public function workspaceUserCreateFormAction(Workspace $workspace)
     {
         $this->checkWorkspaceUsersToolEditionAccess($workspace);
-//        $roleUser = $this->roleManager->getRoleByName('ROLE_USER');
-//
-//
-//        $isAdmin = ($this->sc->isGranted('ROLE_ADMIN')) ? true : false;
-//        $roles = $this->roleManager->getAllPlatformRoles();
-//        $unavailableRoles = [];
-
-//        foreach ($roles as $role) {
-//            $isAvailable = $this->roleManager->validateRoleInsert(new User(), $role);
-//
-//            if (!$isAvailable) {
-//                $unavailableRoles[] = $role;
-//            }
-//        }
         $userCreationType = new WorkspaceUserCreationType(
             $workspace,
             $this->localeManager->getAvailableLocales(),
@@ -269,20 +265,7 @@ class WorkspaceUsersController extends Controller
     public function workspaceUserCreateAction(Workspace $workspace)
     {
         $this->checkWorkspaceUsersToolEditionAccess($workspace);
-//        $translator = $this->get('translator');
-//        $sessionFlashBag = $this->get('session')->getFlashBag();
-//        $roleUser = $this->roleManager->getRoleByName('ROLE_USER');
-//        $isAdmin = ($this->sc->isGranted('ROLE_ADMIN')) ? true : false;
-//
-//        $form = $this->formFactory->create(
-//            FormFactory::TYPE_USER_FULL,
-//            array(
-//                array($roleUser),
-//                $this->localeManager->getAvailableLocales(),
-//                $isAdmin,
-//                $this->authenticationManager->getDrivers()
-//            )
-//        );
+        $sessionFlashBag = $this->session->getFlashBag();
         $userCreationType = new WorkspaceUserCreationType(
             $workspace,
             $this->localeManager->getAvailableLocales(),
@@ -292,32 +275,15 @@ class WorkspaceUsersController extends Controller
         $form = $this->formFactory->create($userCreationType, $user);
         $form->handleRequest($this->request);
 
-//        $unavailableRoles = [];
-
-//        foreach ($form->get('platformRoles')->getData() as $role) {
-//            $isAvailable = $this->roleManager->validateRoleInsert(new User(), $role);
-//
-//            if (!$isAvailable) {
-//                $unavailableRoles[] = $role;
-//            }
-//        }
-//
-//        $isAvailable = $this->roleManager->validateRoleInsert(new User(), $roleUser);
-
-//        if (!$isAvailable) {
-//            $unavailableRoles[] = $roleUser;
-//        }
-
-//        $unavailableRoles = array_unique($unavailableRoles);
-
         if ($form->isValid()) {
-//            $user = $form->getData();
             $newRoles = $form->get('workspaceRoles')->getData();
             $this->userManager->createUser($user, true, $newRoles);
             $this->workspaceUsersManager->addWorkspaceUser($workspace, $user, true);
-//            $sessionFlashBag->add('success', $translator->trans('user_creation_success', array(), 'platform'));
+            $sessionFlashBag->add(
+                'success',
+                $this->translator->trans('user_creation_success', array(), 'platform')
+            );
 
-//            return $this->redirect($this->generateUrl('claro_admin_user_list'));
             return new JsonResponse($user->getId(), '200');
         } else {
 
@@ -326,18 +292,6 @@ class WorkspaceUsersController extends Controller
                 'form' => $form->createView()
             );
         }
-
-//        $error = null;
-//
-//        if (!$this->mailManager->isMailerAvailable()) {
-//            $error = 'mail_not_available';
-//        }
-
-//        return array(
-//            'form_complete_user' => $form->createView(),
-//            'error' => $error,
-//            'unavailableRoles' => $unavailableRoles,
-//        );
     }
 
     /**

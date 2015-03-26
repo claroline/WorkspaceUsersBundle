@@ -53,6 +53,7 @@ class WorkspaceUsersManager
             $workspaceUser->setWorkspace($workspace);
             $workspaceUser->setUser($user);
             $workspaceUser->setCreated($created);
+            $workspaceUser->setRegistrationDate(new \DateTime());
             $this->om->persist($workspaceUser);
             $this->om->flush();
         }

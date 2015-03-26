@@ -26,6 +26,7 @@ use Claroline\CoreBundle\Manager\UserManager;
 use Claroline\CoreBundle\Manager\WorkspaceUserQueueManager;
 use Claroline\WorkspaceUsersBundle\Form\WorkspaceRoleType;
 use Claroline\WorkspaceUsersBundle\Form\WorkspaceUserCreationType;
+use Claroline\WorkspaceUsersBundle\Form\WorkspaceUserEditionType;
 use Claroline\WorkspaceUsersBundle\Manager\WorkspaceUsersManager;
 use JMS\DiExtraBundle\Annotation as DI;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration as EXT;
@@ -130,6 +131,8 @@ class WorkspaceUsersController extends Controller
         $canEdit = $this->hasWorkspaceUsersToolEditionAccess($workspace);
         $wsRoles = $this->roleManager->getRolesByWorkspace($workspace);
         $preferences = $this->facetManager->getVisiblePublicPreference();
+        $editable = array();
+        $deletable = array();
 
         $pager = $this->workspaceUsersManager->getUsersByWorkspace(
             $workspace,
@@ -152,6 +155,15 @@ class WorkspaceUsersController extends Controller
             $order
         );
 
+        foreach ($workspaceUsers as $workspaceUser) {
+            $userId = $workspaceUser->getUser()->getId();
+
+            if ($workspaceUser->isCreated()) {
+                $editable[$userId] = true;
+            }
+            $deletable[$userId] = true;
+        }
+
         return array(
             'workspace' => $workspace,
             'pager' => $pager,
@@ -163,7 +175,9 @@ class WorkspaceUsersController extends Controller
             'currentUser' => $authenticatedUser,
             'showMail' => $preferences['mail'],
             'canEdit' => $canEdit,
-            'workspaceUsers' => $workspaceUsers
+            'workspaceUsers' => $workspaceUsers,
+            'editable' => $editable,
+            'deletable' => $deletable
         );
     }
     /**
@@ -289,6 +303,69 @@ class WorkspaceUsersController extends Controller
 
             return array(
                 'workspace' => $workspace,
+                'form' => $form->createView()
+            );
+        }
+    }
+
+    /**
+     * @EXT\Route(
+     *     "workspace/{workspace}/user/{user}/edit/form",
+     *     name="claro_workspace_users_user_edit_form",
+     *     options = {"expose"=true}
+     * )
+     * @EXT\ParamConverter("authenticatedUser", options={"authenticatedUser" = true})
+     * @EXT\Template("ClarolineWorkspaceUsersBundle:WorkspaceUsers:workspaceUserEditModalForm.html.twig")
+     */
+    public function workspaceUserEditFormAction(Workspace $workspace, User $user)
+    {
+        $this->checkWorkspaceUsersToolEditionAccess($workspace);
+        $userEditionType = new WorkspaceUserEditionType(
+            $this->localeManager->getAvailableLocales(),
+            $this->authenticationManager->getDrivers()
+        );
+        $form = $this->formFactory->create($userEditionType, $user);
+
+        return array(
+            'workspace' => $workspace,
+            'user' => $user,
+            'form' => $form->createView()
+        );
+    }
+
+    /**
+     * @EXT\Route(
+     *     "workspace/{workspace}/user/{user}/edit",
+     *     name="claro_workspace_users_user_edit",
+     *     options = {"expose"=true}
+     * )
+     * @EXT\ParamConverter("authenticatedUser", options={"authenticatedUser" = true})
+     * @EXT\Template("ClarolineWorkspaceUsersBundle:WorkspaceUsers:workspaceUserEditModalForm.html.twig")
+     */
+    public function workspaceUserEditAction(Workspace $workspace, User $user)
+    {
+        $this->checkWorkspaceUsersToolEditionAccess($workspace);
+        $sessionFlashBag = $this->session->getFlashBag();
+        $userEditionType = new WorkspaceUserEditionType(
+            $this->localeManager->getAvailableLocales(),
+            $this->authenticationManager->getDrivers()
+        );
+        $form = $this->formFactory->create($userEditionType, $user);
+        $form->handleRequest($this->request);
+
+        if ($form->isValid()) {
+            $this->userManager->persistUser($user);
+            $sessionFlashBag->add(
+                'success',
+                $this->translator->trans('user_edition_success', array(), 'platform')
+            );
+
+            return new JsonResponse($user->getId(), '200');
+        } else {
+
+            return array(
+                'workspace' => $workspace,
+                'user' => $user,
                 'form' => $form->createView()
             );
         }

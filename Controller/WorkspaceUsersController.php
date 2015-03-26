@@ -110,9 +110,26 @@ class WorkspaceUsersController extends Controller
         $wsRoles = $this->roleManager->getRolesByWorkspace($workspace);
         $preferences = $this->facetManager->getVisiblePublicPreference();
 
-        $pager = $search === '' ?
-            $this->userManager->getByRolesIncludingGroups($wsRoles, $page, $max, $orderedBy, $order) :
-            $this->userManager->getByRolesAndNameIncludingGroups($wsRoles, $search, $page, $max, $orderedBy, $order);
+        $pager = $this->workspaceUsersManager->getUsersByWorkspace(
+            $workspace,
+            $wsRoles,
+            $search,
+            $preferences['mail'],
+            $page,
+            $max,
+            $orderedBy,
+            $order
+        );
+
+        $workspaceUsers = $this->workspaceUsersManager->getWorkspaceUsersByWorkspace(
+            $workspace,
+            $search,
+            $preferences['mail'],
+            $page,
+            $max,
+            $orderedBy,
+            $order
+        );
 
         return array(
             'workspace' => $workspace,
@@ -124,7 +141,8 @@ class WorkspaceUsersController extends Controller
             'order' => $order,
             'currentUser' => $authenticatedUser,
             'showMail' => $preferences['mail'],
-            'canEdit' => $canEdit
+            'canEdit' => $canEdit,
+            'workspaceUsers' => $workspaceUsers
         );
     }
     /**

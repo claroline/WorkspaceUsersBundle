@@ -78,4 +78,65 @@ class WorkspaceUsersManager
             array('workspace' => $workspace, 'user' => $user, 'created' => $created)
         );
     }
+
+    public function getWorkspaceUsersByWorkspace(
+        Workspace $workspace,
+        $search = '',
+        $withMail = false,
+        $page = 1,
+        $max = 50,
+        $orderedBy = 'id',
+        $order = 'ASC'
+    )
+    {
+        if (empty($search)) {
+            $workspaceUsers =  $this->workspaceUserRepo->findWorkspaceUsersByWorkspace(
+                $workspace,
+                $orderedBy,
+                $order
+            );
+        } else {
+            $workspaceUsers = $this->workspaceUserRepo->findSearchedWorkspaceUsersByWorkspace(
+                $workspace,
+                $search,
+                $withMail,
+                $orderedBy,
+                $order
+            );
+        }
+
+        return $this->pagerFactory->createPagerFromArray($workspaceUsers, $page, $max);
+    }
+
+    public function getUsersByWorkspace(
+        Workspace $workspace,
+        array $roles,
+        $search = '',
+        $withMail = false,
+        $page = 1,
+        $max = 50,
+        $orderedBy = 'id',
+        $order = 'ASC'
+    )
+    {
+        if (empty($search)) {
+            $users =  $this->workspaceUserRepo->findUsersByWorkspace(
+                $workspace,
+                $roles,
+                $orderedBy,
+                $order
+            );
+        } else {
+            $users = $this->workspaceUserRepo->findSearchedUsersByWorkspace(
+                $workspace,
+                $roles,
+                $search,
+                $withMail,
+                $orderedBy,
+                $order
+            );
+        }
+
+        return $this->pagerFactory->createPagerFromArray($users, $page, $max);
+    }
 }

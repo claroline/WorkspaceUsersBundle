@@ -51,4 +51,32 @@
             window.location.href = route;
         }
     });
+    
+    $('#users-table-body').on('click', '.remove-role-button', function () {
+        var roleElement = $(this).parent('.role-element');
+        var userId = $(this).data('user-id');
+        var roleId = $(this).data('role-id');
+        
+        $.ajax({
+            url: Routing.generate(
+                'claro_workspace_remove_role_from_user',
+                {
+                    'workspace': workspaceId,
+                    'user': userId,
+                    'role': roleId
+                }
+            ),
+            type: 'DELETE',
+            success: function () {
+                roleElement.remove();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                window.Claroline.Modal.hide();
+                window.Claroline.Modal.simpleContainer(
+                    Translator.trans('error', {}, 'platform'),
+                    jqXHR.responseJSON.message
+                );
+            }
+        });
+    });
 })();

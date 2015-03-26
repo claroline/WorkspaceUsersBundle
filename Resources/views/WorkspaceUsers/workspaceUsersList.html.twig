@@ -187,10 +187,10 @@
                             <th>{{ 'role'|trans({}, 'platform') }}</th>
                         </tr>
                     </thead>
-                    <tbody id="user-table-body">
+                    <tbody id="users-table-body">
                         
                         {% for user in pager.currentPageResults %}
-                            <tr id="row-{{ user.id }}"
+                            <tr id="row-{{ user.getId() }}"
                                 class="row-user"
                                 data-user-id="{{ user.getId() }}"
                             >
@@ -212,14 +212,15 @@
                                 <td>
                                     {% for role in user.getEntityRoles(false) %}
                                         {% if role.getWorkspace() == workspace %}
-                                            <span class="label label-success"
+                                            <span class="label label-success role-element"
                                                   id="label-{{ role.getId() }}-{{ user.getId()}}"
                                             >
                                                 {{ role.getTranslationKey()|trans({}, 'platform') }}
                                                 
                                                 {% if canEdit %}
                                                     <i class="fa fa-times-circle pointer-hand remove-role-button"
-                                                       href="{{ path('claro_workspace_remove_role_from_user', {'workspace': workspace.getId(), 'user': user.getId(), 'role': role.getId() } ) }}"
+                                                       data-user-id="{{ user.getId() }}"
+                                                       data-role-id="{{ role.getId() }}"
                                                     >
                                                     </i>
                                                 {% endif %}

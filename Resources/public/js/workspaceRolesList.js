@@ -126,8 +126,4 @@
     var removeRoleRow = function (event, roleId) {
         $('#row-role-' + roleId).remove();
     }
-
-    var refreshPage = function () {
-        window.location.reload();
-    }
 })();

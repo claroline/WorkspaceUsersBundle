@@ -16,13 +16,16 @@ use Claroline\CoreBundle\Entity\User;
 use Claroline\CoreBundle\Entity\Workspace\Workspace;
 use Claroline\CoreBundle\Entity\Workspace\WorkspaceRegistrationQueue;
 use Claroline\CoreBundle\Form\RoleTranslationType;
+use Claroline\CoreBundle\Manager\AuthenticationManager;
 use Claroline\CoreBundle\Manager\FacetManager;
+use Claroline\CoreBundle\Manager\LocaleManager;
 use Claroline\CoreBundle\Manager\ResourceManager;
 use Claroline\CoreBundle\Manager\RightsManager;
 use Claroline\CoreBundle\Manager\RoleManager;
 use Claroline\CoreBundle\Manager\UserManager;
 use Claroline\CoreBundle\Manager\WorkspaceUserQueueManager;
 use Claroline\WorkspaceUsersBundle\Form\WorkspaceRoleType;
+use Claroline\WorkspaceUsersBundle\Form\WorkspaceUserCreationType;
 use Claroline\WorkspaceUsersBundle\Manager\WorkspaceUsersManager;
 use JMS\DiExtraBundle\Annotation as DI;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration as EXT;
@@ -35,8 +38,10 @@ use Symfony\Component\Security\Core\SecurityContextInterface;
 
 class WorkspaceUsersController extends Controller
 {
+    private $authenticationManager;
     private $facetManager;
     private $formFactory;
+    private $localeManager;
     private $request;
     private $resourceManager;
     private $rightsManager;
@@ -48,8 +53,10 @@ class WorkspaceUsersController extends Controller
 
     /**
      * @DI\InjectParams({
+     *     "authenticationManager"     = @DI\Inject("claroline.common.authentication_manager"),
      *     "facetManager"              = @DI\Inject("claroline.manager.facet_manager"),
      *     "formFactory"               = @DI\Inject("form.factory"),
+     *     "localeManager"             = @DI\Inject("claroline.common.locale_manager"),
      *     "requestStack"              = @DI\Inject("request_stack"),
      *     "resourceManager"           = @DI\Inject("claroline.manager.resource_manager"),
      *     "rightsManager"             = @DI\Inject("claroline.manager.rights_manager"),
@@ -61,8 +68,10 @@ class WorkspaceUsersController extends Controller
      * })
      */
     public function __construct(
+        AuthenticationManager $authenticationManager,
         FacetManager $facetManager,
         FormFactory $formFactory,
+        LocaleManager $localeManager,
         RequestStack $requestStack,
         ResourceManager $resourceManager,
         RightsManager $rightsManager,
@@ -73,8 +82,10 @@ class WorkspaceUsersController extends Controller
         WorkspaceUserQueueManager $workspaceUserQueueManager
     )
     {
+        $this->authenticationManager  = $authenticationManager;
         $this->facetManager = $facetManager;
         $this->formFactory = $formFactory;
+        $this->localeManager = $localeManager;
         $this->request = $requestStack->getCurrentRequest();
         $this->resourceManager = $resourceManager;
         $this->rightsManager = $rightsManager;
@@ -205,6 +216,128 @@ class WorkspaceUsersController extends Controller
             'max' => $max,
             'search' => $search
         );
+    }
+
+    /**
+     * @EXT\Route(
+     *     "workspace/{workspace}/user/create/form",
+     *     name="claro_workspace_users_user_create_form",
+     *     options = {"expose"=true}
+     * )
+     * @EXT\ParamConverter("authenticatedUser", options={"authenticatedUser" = true})
+     * @EXT\Template("ClarolineWorkspaceUsersBundle:WorkspaceUsers:workspaceUserCreateModalForm.html.twig")
+     */
+    public function workspaceUserCreateFormAction(Workspace $workspace)
+    {
+        $this->checkWorkspaceUsersToolEditionAccess($workspace);
+//        $roleUser = $this->roleManager->getRoleByName('ROLE_USER');
+//
+//
+//        $isAdmin = ($this->sc->isGranted('ROLE_ADMIN')) ? true : false;
+//        $roles = $this->roleManager->getAllPlatformRoles();
+//        $unavailableRoles = [];
+
+//        foreach ($roles as $role) {
+//            $isAvailable = $this->roleManager->validateRoleInsert(new User(), $role);
+//
+//            if (!$isAvailable) {
+//                $unavailableRoles[] = $role;
+//            }
+//        }
+        $userCreationType = new WorkspaceUserCreationType(
+            $workspace,
+            $this->localeManager->getAvailableLocales(),
+            $this->authenticationManager->getDrivers()
+        );
+        $form = $this->formFactory->create($userCreationType);
+
+        return array(
+            'workspace' => $workspace,
+            'form' => $form->createView()
+        );
+    }
+
+    /**
+     * @EXT\Route(
+     *     "workspace/{workspace}/user/create",
+     *     name="claro_workspace_users_user_create",
+     *     options = {"expose"=true}
+     * )
+     * @EXT\ParamConverter("authenticatedUser", options={"authenticatedUser" = true})
+     * @EXT\Template("ClarolineWorkspaceUsersBundle:WorkspaceUsers:workspaceUserCreateModalForm.html.twig")
+     */
+    public function workspaceUserCreateAction(Workspace $workspace)
+    {
+        $this->checkWorkspaceUsersToolEditionAccess($workspace);
+//        $translator = $this->get('translator');
+//        $sessionFlashBag = $this->get('session')->getFlashBag();
+//        $roleUser = $this->roleManager->getRoleByName('ROLE_USER');
+//        $isAdmin = ($this->sc->isGranted('ROLE_ADMIN')) ? true : false;
+//
+//        $form = $this->formFactory->create(
+//            FormFactory::TYPE_USER_FULL,
+//            array(
+//                array($roleUser),
+//                $this->localeManager->getAvailableLocales(),
+//                $isAdmin,
+//                $this->authenticationManager->getDrivers()
+//            )
+//        );
+        $userCreationType = new WorkspaceUserCreationType(
+            $workspace,
+            $this->localeManager->getAvailableLocales(),
+            $this->authenticationManager->getDrivers()
+        );
+        $user = new User();
+        $form = $this->formFactory->create($userCreationType, $user);
+        $form->handleRequest($this->request);
+
+//        $unavailableRoles = [];
+
+//        foreach ($form->get('platformRoles')->getData() as $role) {
+//            $isAvailable = $this->roleManager->validateRoleInsert(new User(), $role);
+//
+//            if (!$isAvailable) {
+//                $unavailableRoles[] = $role;
+//            }
+//        }
+//
+//        $isAvailable = $this->roleManager->validateRoleInsert(new User(), $roleUser);
+
+//        if (!$isAvailable) {
+//            $unavailableRoles[] = $roleUser;
+//        }
+
+//        $unavailableRoles = array_unique($unavailableRoles);
+
+        if ($form->isValid()) {
+//            $user = $form->getData();
+            $newRoles = $form->get('workspaceRoles')->getData();
+            $this->userManager->createUser($user, true, $newRoles);
+            $this->workspaceUsersManager->addWorkspaceUser($workspace, $user, true);
+//            $sessionFlashBag->add('success', $translator->trans('user_creation_success', array(), 'platform'));
+
+//            return $this->redirect($this->generateUrl('claro_admin_user_list'));
+            return new JsonResponse($user->getId(), '200');
+        } else {
+
+            return array(
+                'workspace' => $workspace,
+                'form' => $form->createView()
+            );
+        }
+
+//        $error = null;
+//
+//        if (!$this->mailManager->isMailerAvailable()) {
+//            $error = 'mail_not_available';
+//        }
+
+//        return array(
+//            'form_complete_user' => $form->createView(),
+//            'error' => $error,
+//            'unavailableRoles' => $unavailableRoles,
+//        );
     }
 
     /**

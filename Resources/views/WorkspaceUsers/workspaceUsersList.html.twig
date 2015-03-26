@@ -103,13 +103,13 @@
                 {% if canEdit %}
                 <div class="col-md-8">
                     <div class="btn-group margin-md">
-                        <a href="{{ path('claro_workspace_unregistered_user_list', {'workspace': workspace.getId()}) }}"
-                           class="btn btn-default dropdown-toggle"
-                           role="button"
+                        <span class="btn btn-default dropdown-toggle"
+                              id="create-workspace-user-btn"
+                              role="button"
                         >
                             <i class="fa fa-plus"></i>
-                            {{ 'add_users'|trans({}, 'platform') }}
-                        </a>
+                            {{ 'create_user'|trans({}, 'platform') }}
+                        </span>
                         <a href="{{ path('claro_message_form_for_workspace', {'workspace': workspace.getId()}) }}"
                            class="btn btn-default dropdown-toggle"
                            role="button"
@@ -233,6 +233,7 @@
                                                     </i>
                                                 {% endif %}
                                             </span>
+                                            &nbsp;
                                         {% endif %}
                                     {% endfor %}
 

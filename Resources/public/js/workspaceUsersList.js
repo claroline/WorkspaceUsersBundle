@@ -52,6 +52,18 @@
         }
     });
     
+    $('#create-workspace-user-btn').on('click', function () {
+        
+        window.Claroline.Modal.displayForm(
+            Routing.generate(
+                'claro_workspace_users_user_create_form',
+                {'workspace': workspaceId}
+            ),
+            reloadPage,
+            function() {}
+        );
+    });
+    
     $('#users-table-body').on('click', '.remove-role-button', function () {
         var roleElement = $(this).parent('.role-element');
         var userId = $(this).data('user-id');
@@ -79,4 +91,8 @@
             }
         });
     });
+    
+    var reloadPage = function () {
+        window.location.reload();
+    };
 })();

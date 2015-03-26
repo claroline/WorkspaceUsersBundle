@@ -114,16 +114,16 @@
             '</tr>';
         
         $('#roles-table-body').append(roleElement);
-    }
+    };
     
     var renameRoleRow = function (datas) {
         var id = datas['id'];
         var name = datas['name'];
         
         $('#row-role-name-' + id).html( Translator.trans(name, {}, 'platform'));
-    }
+    };
     
     var removeRoleRow = function (event, roleId) {
         $('#row-role-' + roleId).remove();
-    }
+    };
 })();

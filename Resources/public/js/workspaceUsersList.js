@@ -66,7 +66,7 @@
                 'claro_workspace_users_user_create_form',
                 {'workspace': workspaceId}
             ),
-            reloadPage,
+            addUser,
             function() {}
         );
     });
@@ -197,6 +197,32 @@
     
     var reloadPage = function () {
         window.location.reload();
+    };
+    
+    var addUser = function(datas, textStatus, jqXHR) {
+        switch (jqXHR.status) {
+            case 206:
+                var parameters = {}
+                var userId = datas['userId'];
+                var roleIds = datas['roleIds'];
+                parameters.roleIds = roleIds;
+                var route = Routing.generate(
+                    'claro_workspace_users_add_existing_user',
+                    {'workspace': workspaceId, 'user': userId}
+                );
+                route += '?' + $.param(parameters);
+                
+                window.Claroline.Modal.confirmRequest(
+                    route,
+                    reloadPage,
+                    null,
+                    Translator.trans('add_existing_user_confirm_message', {}, 'platform'),
+                    Translator.trans('existing_user', {}, 'platform')
+                );
+                break;
+            default:
+                window.location.reload();
+        }
     };
     
     var removeUsersRow = function (event, userIds) {

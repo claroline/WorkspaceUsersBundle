@@ -290,7 +290,23 @@ class WorkspaceUsersController extends Controller
         $form = $this->formFactory->create($userCreationType, $user);
         $form->handleRequest($this->request);
 
-        if ($form->isValid()) {
+        $username = $user->getUsername();
+        $mail = $user->getMail();
+        $existingUser = $this->userManager->getUserByUsernameAndMail($username, $mail);
+
+        if (!is_null($existingUser)) {
+            $newRoles = $form->get('workspaceRoles')->getData();
+            $roleIds = array();
+
+            foreach ($newRoles as $newRole) {
+                $roleIds[] = $newRole->getId();
+            }
+
+            return new JsonResponse(
+                array('userId' => $existingUser->getId(), 'roleIds' => $roleIds),
+                '206'
+            );
+        } elseif ($form->isValid()) {
             $newRoles = $form->get('workspaceRoles')->getData();
             $this->userManager->createUser($user, true, $newRoles);
             $this->workspaceUsersManager->addWorkspaceUser($workspace, $user, true);
@@ -393,6 +409,37 @@ class WorkspaceUsersController extends Controller
         $this->workspaceUsersManager->deleteWorkspaceUsers($workspace, $users);
 
         return new JsonResponse('success', '200');
+    }
+
+    /**
+     * @EXT\Route(
+     *     "workspace/{workspace}/add/user/{user}/with/roles",
+     *     name="claro_workspace_users_add_existing_user",
+     *     options = {"expose"=true}
+     * )
+     * @EXT\ParamConverter("authenticatedUser", options={"authenticatedUser" = true})
+     * @EXT\ParamConverter(
+     *     "roles",
+     *      class="ClarolineCoreBundle:Role",
+     *      options={"multipleIds" = true, "name" = "roleIds"}
+     * )
+     */
+    public function workspaceAddExistingUserAction(
+        Workspace $workspace,
+        User $user,
+        array $roles
+    )
+    {
+        $this->checkWorkspaceUsersToolEditionAccess($workspace);
+        $this->workspaceUsersManager->addWorkspaceUser($workspace, $user, false);
+        $sessionFlashBag = $this->session->getFlashBag();
+        $this->roleManager->associateRolesToSubjects(array($user), $roles);
+        $sessionFlashBag->add(
+            'success',
+            $this->translator->trans('user_creation_success', array(), 'platform')
+        );
+
+        return new JsonResponse('success', 200);
     }
 
     /**

@@ -1,3 +1,5 @@
+add_existing_user_confirm_message: 'An user with this username and email already exists.<br>This user will be registered.'
+existing_user: 'Existing user'
 roles_association_success: 'The roles have been successfully associated to users'
 user_edition_success: 'The user account has been successfully edited.'
 users_deletion: 'User(s) deletion'

@@ -1,0 +1,38 @@
+<div id="modal-workspace-roles-list-form"
+     class="modal-dialog"
+     role="dialog"
+     aria-labelledby="modalLabel"
+     aria-hidden="true"
+>
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                &times;
+            </button>
+            <h3 class="modal-title">
+                {{ 'add_role_to_users'|trans({'%count%': nbUsers}, 'platform') }}
+            </h3>
+        </div>
+        <div class="modal-body">
+            <form id="workspace-roles-list-form"
+                  action="{{
+                      path(
+                          'claro_workspace_users_selected_workspace_roles_list',
+                          {'workspace': workspace.getId(), 'nbUsers': nbUsers}
+                      )
+                  }}"
+                  method="POST"
+            > 
+                {{ form_widget(form) }}
+            </form>
+        </div>
+        <div class="modal-footer">
+            <span class="btn btn-default" data-dismiss="modal">
+                {{ 'cancel'|trans({},'platform') }}
+            </span>
+            <button type="button" id='select-btn' class="btn btn-primary">
+                {{ 'ok'|trans({},'platform') }}
+            </button>
+        </div>
+    </div>
+</div>

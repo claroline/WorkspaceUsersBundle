@@ -1,0 +1,5 @@
+add_existing_user_confirm_message: 'Un utilisateur avec ce nom d''utilisateur et adresse mail existe déjà.<br>Cet utilisateur va être inscrit.'
+existing_user: 'Utilisateur existant'
+roles_association_success: 'Les rôles ont été associés aux utilisateurs avec succès.'
+user_edition_success: 'Le compte utilisateur a été modifié avec succès.'
+users_deletion: 'Suppression d''utilisateur(s)'

@@ -11,6 +11,9 @@
     'use strict';
 
     var workspaceId = $('#workspace-users-datas-box').data('workspace-id');
+    var currentSearch = $('#workspace-users-datas-box').data('search');
+    var currentOrderedBy = $('#workspace-users-datas-box').data('ordered-by');
+    var currentOrder = $('#workspace-users-datas-box').data('order');
     
     $('#create-workspace-role-btn').on('click', function () {
         
@@ -54,14 +57,12 @@
 
     $('#search-role-btn').on('click', function () {
         var search = $('#search-role-input').val();
-        var orderedBy = $(this).data('ordered-by');
-        var order = $(this).data('order');
         var route = Routing.generate(
             'claro_workspace_users_roles_list',
             {
                 'workspace': workspaceId,
-                'orderedBy': orderedBy,
-                'order': order,
+                'orderedBy': currentOrderedBy,
+                'order': currentOrder,
                 'search': search
             }
         );
@@ -72,14 +73,12 @@
     $('#search-role-input').keypress(function(e) {
         if (e.keyCode === 13) {
             var search = $(this).val();
-            var orderedBy = $(this).data('ordered-by');
-            var order = $(this).data('order');
             var route = Routing.generate(
                 'claro_workspace_users_roles_list',
                 {
                     'workspace': workspaceId,
-                    'orderedBy': orderedBy,
-                    'order': order,
+                    'orderedBy': currentOrderedBy,
+                    'order': currentOrder,
                     'search': search
                 }
             );

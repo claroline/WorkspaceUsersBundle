@@ -86,11 +86,11 @@
         </ul>
         
         <h3>{{ 'users_list'|trans({}, 'platform') }}</h3>
-        {{ macros.flashBox() }}
     </div>
 
     <div class="list-group">
         <div class="list-group-item">
+            {{ macros.flashBox() }}
         
             {% if search != '' %}
                 <div class="alert alert-info">
@@ -101,51 +101,45 @@
             <div class="row">
                 
                 {% if canEdit %}
-                <div class="col-md-8">
-                    <div class="btn-group margin-md">
-                        <span class="btn btn-default dropdown-toggle"
-                              id="create-workspace-user-btn"
-                              role="button"
-                        >
-                            <i class="fa fa-plus"></i>
-                            {{ 'create_user'|trans({}, 'platform') }}
-                        </span>
-                        <a href="{{ path('claro_message_form_for_workspace', {'workspace': workspace.getId()}) }}"
-                           class="btn btn-default dropdown-toggle"
-                           role="button"
-                        >
-                            <i class="fa fa-envelope"></i>
-                            {{ 'send_message_to_workspace'|trans({}, 'platform') }}
-                        </a>
-                        <a class="btn btn-default action-button table-control"
-                            href="{{ path('claro_workspace_export_users', {'format': 'xls', 'workspace': workspace.getId()}) }}">
-                            {{ 'excel_export'|trans({}, 'platform') }}
-                        </a>
-                        <a class="btn btn-default action-button table-control"
-                            href="{{ path('claro_workspace_export_users', {'format': 'csv', 'workspace': workspace.getId()}) }}">
-                            {{ 'csv_export'|trans({}, 'platform') }}
-                        </a>
+                    <div class="col-md-8">
+                        <div class="btn-group margin-bottom-md">
+                            <span class="btn btn-default dropdown-toggle"
+                                  id="create-workspace-user-btn"
+                                  role="button"
+                            >
+                                <i class="fa fa-plus"></i>
+                                {{ 'create_user'|trans({}, 'platform') }}
+                            </span>
+                            <a href="{{ path('claro_message_form_for_workspace', {'workspace': workspace.getId()}) }}"
+                               class="btn btn-default dropdown-toggle"
+                               role="button"
+                            >
+                                <i class="fa fa-envelope"></i>
+                                {{ 'send_message_to_workspace'|trans({}, 'platform') }}
+                            </a>
+                            <a class="btn btn-default action-button table-control"
+                                href="{{ path('claro_workspace_export_users', {'format': 'xls', 'workspace': workspace.getId()}) }}">
+                                {{ 'excel_export'|trans({}, 'platform') }}
+                            </a>
+                            <a class="btn btn-default action-button table-control"
+                                href="{{ path('claro_workspace_export_users', {'format': 'csv', 'workspace': workspace.getId()}) }}">
+                                {{ 'csv_export'|trans({}, 'platform') }}
+                            </a>
+                        </div>
                     </div>
-                </div>
                 {% endif %}
                 <div class="col-md-4 pull-right">
-                    <div class="input-group margin-md">
+                    <div class="input-group margin-bottom-md">
                         <input class="form-control search-user"
                                type="text"
                                id="search-user-input"
                                placeholder="{{ 'search'|trans({}, 'platform') }}"
                                value="{{ search }}"
-                               data-ordered-by="{{ orderedBy }}"
-                               data-order="{{ order }}"
-                               data-max="{{ max }}"
                         >
                         <span class="input-group-btn">
                             <button class="filter btn btn-default search-user-btn"
                                     type="button"
                                     id="search-user-btn"
-                                    data-ordered-by="{{ orderedBy }}"
-                                    data-order="{{ order }}"
-                                    data-max="{{ max }}"
                             >
                                 <i class="fa fa-search"></i>
                             </button>
@@ -153,23 +147,62 @@
                     </div>
                 </div>
             </div>
+                
+            {% if canEdit %}
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="btn-group margin-bottom-md">
+                            <span class="btn btn-default dropdown-toggle workspace-user-management-btn disabled"
+                                  id="add-workspace-role-btn"
+                                  role="button"
+                            >
+                                <i class="fa fa-plus-circle"></i>
+                                {{ 'add_role'|trans({}, 'platform') }}
+                            </span>
+                            <span class="btn btn-default dropdown-toggle workspace-user-management-btn disabled"
+                                  id="delete-workspace-users-btn"
+                                  role="button"
+                            >
+                                <i class="fa fa-trash"></i>
+                                {{ 'delete'|trans({}, 'platform') }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-4 margin-bottom-md">
+                        {{ maxResultsSelectBox(max, "$('#max-results-button').trigger('click');", 'users_per_page') }}
+                    </div>
+                </div>
 
-            <div class="row">
-                <div class="col-md-8">
-                    
+                {% if pager.getNbPages() > 1 %}
+                    <div class="row">
+                        <div class="col-md-8">
+                            {{ renderPager(search, workspace.getId(), pager, max, orderedBy, order) }}
+                        </div>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="row">
                     {% if pager.getNbPages() > 1 %}
-                        {{ renderPager(search, workspace.getId(), pager, max, orderedBy, order) }}
+                        <div class="col-md-8">
+                            {{ renderPager(search, workspace.getId(), pager, max, orderedBy, order) }}
+                        </div>
                     {% endif %}
+                    <div class="col-md-4 margin-bottom-md pull-right">
+                        {{ maxResultsSelectBox(max, "$('#max-results-button').trigger('click');", 'users_per_page') }}
+                    </div>
                 </div>
-                <div class="col-md-4">
-                    {{ maxResultsSelectBox(max, "$('#search-button').trigger('click');", 'users_per_page') }}
-                </div>
-            </div>
+            {% endif %}
             <div class="table-responsive">
                 <table class="table table-striped table-bordered table-condensed">
                     <thead>
                         <tr>
-                            <th></th>
+                            {% if canEdit %}
+                                <th class="text-center">
+                                    <input type="checkbox"
+                                           id="registered-user-chk-all"
+                                    >
+                                </th>
+                            {% endif %}
                             <th>
                                 <a href="{{ sortUrl(search, workspace.getId(), max, 'username', order) }}">
                                     {{ 'username'|trans({}, 'platform') }}
@@ -194,24 +227,31 @@
                                 </th>
                             {% endif %}
                             <th>{{ 'role'|trans({}, 'platform') }}</th>
-                            <th class="text-center">{{ 'actions'|trans({}, 'platform') }}</th>
+                            
+                            {% if canEdit %}
+                                <th class="text-center">{{ 'edit'|trans({}, 'platform') }}</th>
+                            {% endif %}
                         </tr>
                     </thead>
                     <tbody id="users-table-body">
                         
                         {% for user in pager.currentPageResults %}
+                            {% set isCreated = (created[user.getId()] is defined) %}
+                            {% set isRegistered = (registered[user.getId()] is defined) %}
                             <tr id="row-workspace-user-{{ user.getId() }}"
                                 class="row-user"
                                 data-user-id="{{ user.getId() }}"
                             >
-                                <td class="text-center">
-                                    {% if editable[user.getId()] is defined %}
-                                        <input type="checkbox"
-                                               class="editable-user-chk"
-                                               data-user-id="{{ user.getId() }}"
-                                        >
-                                    {% endif %}
-                                </td>
+                                {% if canEdit %}
+                                    <td class="text-center">
+                                        {% if isRegistered %}
+                                            <input type="checkbox"
+                                                   class="registered-user-chk"
+                                                   value="{{ user.getId() }}"
+                                            >
+                                        {% endif %}
+                                    </td>
+                                {% endif %}
                                 <td>
                                     {% if user.getPublicUrl() != '' %}
                                         <a href="{{ path('claro_public_profile_view', {'publicUrl':user.getPublicUrl()}) }}">
@@ -230,12 +270,12 @@
                                 <td>
                                     {% for role in user.getEntityRoles(false) %}
                                         {% if role.getWorkspace() == workspace %}
-                                            <span class="label label-success role-element"
+                                            <span class="label {% if isRegistered %}label-success{% else %}label-danger{% endif %} role-element"
                                                   id="label-{{ role.getId() }}-{{ user.getId()}}"
                                             >
                                                 {{ role.getTranslationKey()|trans({}, 'platform') }}
                                                 
-                                                {% if canEdit %}
+                                                {% if canEdit and isRegistered %}
                                                     <i class="fa fa-times-circle pointer-hand remove-role-button"
                                                        data-user-id="{{ user.getId() }}"
                                                        data-role-id="{{ role.getId() }}"
@@ -263,20 +303,17 @@
                                         {% endfor %}
                                     {% endfor %}
                                 </td>
-                                <td class="text-center">
-                                    {% if editable[user.getId()] is defined %}
-                                        <i class="fa fa-pencil btn btn-default btn-sm edit-workspace-user-btn"
-                                           data-user-id="{{ user.getId() }}"
-                                        >
-                                        </i>
-                                    {% endif %}
-                                    {% if deletable[user.getId()] is defined %}
-                                        <i class="fa fa-trash btn btn-default btn-sm delete-workspace-user-btn"
-                                           data-user-id="{{ user.getId() }}"
-                                        >
-                                        </i>
-                                    {% endif %}
-                                </td>
+                                
+                                {% if canEdit %}
+                                    <td class="text-center">
+                                        {% if isCreated %}
+                                            <i class="fa fa-pencil btn btn-default btn-sm edit-workspace-user-btn"
+                                               data-user-id="{{ user.getId() }}"
+                                            >
+                                            </i>
+                                        {% endif %}
+                                    </td>
+                                {% endif %}
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -291,6 +328,10 @@
 
     <div id="workspace-users-datas-box"
          data-workspace-id="{{ workspace.getId() }}"
+         data-search="{{ search }}"
+         data-max="{{ max }}"
+         data-ordered-by="{{ orderedBy }}"
+         data-order="{{ order }}"
     >
     </div>
 {% endblock %}

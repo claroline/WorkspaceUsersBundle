@@ -13,6 +13,7 @@
 {% endmacro %}
 
 {% from _self import renderPager %}
+{% from "ClarolineCoreBundle::macros.html.twig" import maxResultsSelectBox %}
 
 {% extends 'ClarolineCoreBundle:Workspace:layout.html.twig' %}
 
@@ -75,21 +76,29 @@
                            id="search-user-input"
                            placeholder="{{ 'search'|trans({}, 'platform') }}"
                            value="{{ search }}"
-                           data-max="{{ max }}"
                     >
                     <span class="input-group-btn">
                         <button class="filter btn btn-default search-user-btn"
                                 type="button"
                                 id="search-user-btn"
-                                data-max="{{ max }}"
                         >
                             <i class="fa fa-search"></i>
                         </button>
                     </span>
                 </div>
-                <br>
-                <br>
-                <br>
+            </div>
+            <br>
+
+            <div class="row">
+                <div class="col-md-8">
+                    
+                    {% if queues.getNbPages() > 1 %}
+                        {{ renderPager(search, workspace.getId(), queues, max) }}
+                    {% endif %}
+                </div>
+                <div class="col-md-4 pull-right">
+                    {{ maxResultsSelectBox(max, "$('#max-results-button').trigger('click');", 'users_per_page') }}
+                </div>
             </div>
             
             {% if queues|length > 0 %}
@@ -138,13 +147,17 @@
                     {{ renderPager(search, workspace.getId(), queues, max) }}
                 {% endif %}
             {% else %}
-                <div class="alert alert-warning">{{ 'no_user'|trans({}, 'platform') }}</div>
+                <div class="alert alert-warning">
+                    {{ 'no_user'|trans({}, 'platform') }}
+                </div>
             {% endif %}
         </div>
     </div>
 
     <div id="workspace-users-datas-box"
          data-workspace-id="{{ workspace.getId() }}"
+         data-search="{{ search }}"
+         data-max="{{ max }}"
     >
     </div>
 {% endblock %}

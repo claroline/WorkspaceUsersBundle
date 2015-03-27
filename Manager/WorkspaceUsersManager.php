@@ -13,6 +13,7 @@ namespace Claroline\WorkspaceUsersBundle\Manager;
 
 use Claroline\CoreBundle\Entity\User;
 use Claroline\CoreBundle\Entity\Workspace\Workspace;
+use Claroline\CoreBundle\Manager\RoleManager;
 use Claroline\CoreBundle\Pager\PagerFactory;
 use Claroline\CoreBundle\Persistence\ObjectManager;
 use Claroline\WorkspaceUsersBundle\Entity\WorkspaceUser;
@@ -25,21 +26,25 @@ class WorkspaceUsersManager
 {
     private $om;
     private $pagerFactory;
+    private $roleManager;
     private $workspaceUserRepo;
 
     /**
      * @DI\InjectParams({
      *     "om"           = @DI\Inject("claroline.persistence.object_manager"),
-     *     "pagerFactory" = @DI\Inject("claroline.pager.pager_factory")
+     *     "pagerFactory" = @DI\Inject("claroline.pager.pager_factory"),
+     *     "roleManager"  = @DI\Inject("claroline.manager.role_manager")
      * })
      */
     public function __construct(
         ObjectManager $om,
-        PagerFactory $pagerFactory
+        PagerFactory $pagerFactory,
+        RoleManager $roleManager
     )
     {
         $this->om = $om;
         $this->pagerFactory = $pagerFactory;
+        $this->roleManager = $roleManager;
         $this->workspaceUserRepo =
             $om->getRepository('ClarolineWorkspaceUsersBundle:WorkspaceUser');
     }
@@ -57,6 +62,26 @@ class WorkspaceUsersManager
             $this->om->persist($workspaceUser);
             $this->om->flush();
         }
+    }
+
+    public function deleteWorkspaceUsers(Workspace $workspace, array $users)
+    {
+        $this->om->startFlushSuite();
+
+        foreach ($users as $user) {
+            $wsRoles = $this->roleManager->getWorkspaceRolesForUser($user, $workspace);
+
+            foreach ($wsRoles as $role) {
+                $this->roleManager->dissociateWorkspaceRole($user, $workspace, $role);
+            }
+
+            $workspaceUser = $this->getOneWorkspaceUserByWorkspaceAndUser(
+                $workspace,
+                $user
+            );
+            $this->om->remove($workspaceUser);
+        }
+        $this->om->endFlushSuite();
     }
 
     public function getOneWorkspaceUserByWorkspaceAndUser(

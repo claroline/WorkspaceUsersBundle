@@ -83,15 +83,11 @@
                            id="search-role-input"
                            placeholder="{{ 'search'|trans({}, 'platform') }}"
                            value="{{ search }}"
-                           data-ordered-by="{{ orderedBy }}"
-                           data-order="{{ order }}"
                     >
                     <span class="input-group-btn">
                         <button class="filter btn btn-default search-role-btn"
                                 type="button"
                                 id="search-role-btn"
-                                data-ordered-by="{{ orderedBy }}"
-                                data-order="{{ order }}"
                         >
                             <i class="fa fa-search"></i>
                         </button>
@@ -148,6 +144,9 @@
 
     <div id="workspace-users-datas-box"
          data-workspace-id="{{ workspace.getId() }}"
+         data-search="{{ search }}"
+         data-ordered-by="{{ orderedBy }}"
+         data-order="{{ order }}"
     >
     </div>
 {% endblock %}

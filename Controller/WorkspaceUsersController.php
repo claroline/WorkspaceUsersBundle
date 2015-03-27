@@ -24,6 +24,7 @@ use Claroline\CoreBundle\Manager\RightsManager;
 use Claroline\CoreBundle\Manager\RoleManager;
 use Claroline\CoreBundle\Manager\UserManager;
 use Claroline\CoreBundle\Manager\WorkspaceUserQueueManager;
+use Claroline\WorkspaceUsersBundle\Form\WorkspaceRolesListType;
 use Claroline\WorkspaceUsersBundle\Form\WorkspaceRoleType;
 use Claroline\WorkspaceUsersBundle\Form\WorkspaceUserCreationType;
 use Claroline\WorkspaceUsersBundle\Form\WorkspaceUserEditionType;
@@ -131,8 +132,8 @@ class WorkspaceUsersController extends Controller
         $canEdit = $this->hasWorkspaceUsersToolEditionAccess($workspace);
         $wsRoles = $this->roleManager->getRolesByWorkspace($workspace);
         $preferences = $this->facetManager->getVisiblePublicPreference();
-        $editable = array();
-        $deletable = array();
+        $registered = array();
+        $created = array();
 
         $pager = $this->workspaceUsersManager->getUsersByWorkspace(
             $workspace,
@@ -159,9 +160,9 @@ class WorkspaceUsersController extends Controller
             $userId = $workspaceUser->getUser()->getId();
 
             if ($workspaceUser->isCreated()) {
-                $editable[$userId] = true;
+                $created[$userId] = true;
             }
-            $deletable[$userId] = true;
+            $registered[$userId] = true;
         }
 
         return array(
@@ -176,8 +177,8 @@ class WorkspaceUsersController extends Controller
             'showMail' => $preferences['mail'],
             'canEdit' => $canEdit,
             'workspaceUsers' => $workspaceUsers,
-            'editable' => $editable,
-            'deletable' => $deletable
+            'created' => $created,
+            'registered' => $registered
         );
     }
     /**
@@ -320,6 +321,7 @@ class WorkspaceUsersController extends Controller
     public function workspaceUserEditFormAction(Workspace $workspace, User $user)
     {
         $this->checkWorkspaceUsersToolEditionAccess($workspace);
+        $this->checkWorkspaceUserEditionAccess($workspace, $user);
         $userEditionType = new WorkspaceUserEditionType(
             $this->localeManager->getAvailableLocales(),
             $this->authenticationManager->getDrivers()
@@ -345,6 +347,7 @@ class WorkspaceUsersController extends Controller
     public function workspaceUserEditAction(Workspace $workspace, User $user)
     {
         $this->checkWorkspaceUsersToolEditionAccess($workspace);
+        $this->checkWorkspaceUserEditionAccess($workspace, $user);
         $sessionFlashBag = $this->session->getFlashBag();
         $userEditionType = new WorkspaceUserEditionType(
             $this->localeManager->getAvailableLocales(),
@@ -369,6 +372,121 @@ class WorkspaceUsersController extends Controller
                 'form' => $form->createView()
             );
         }
+    }
+
+    /**
+     * @EXT\Route(
+     *     "workspace/{workspace}/users/delete",
+     *     name="claro_workspace_users_delete",
+     *     options = {"expose"=true}
+     * )
+     * @EXT\ParamConverter("authenticatedUser", options={"authenticatedUser" = true})
+     * @EXT\ParamConverter(
+     *     "users",
+     *      class="ClarolineCoreBundle:User",
+     *      options={"multipleIds" = true, "name" = "userIds"}
+     * )
+     */
+    public function workspaceUsersDeleteAction(Workspace $workspace, array $users)
+    {
+        $this->checkWorkspaceUsersToolEditionAccess($workspace);
+        $this->workspaceUsersManager->deleteWorkspaceUsers($workspace, $users);
+
+        return new JsonResponse('success', '200');
+    }
+
+    /**
+     * @EXT\Route(
+     *     "workspace/{workspace}/users/nb/{nbUsers}/roles/selection/list/form",
+     *     name="claro_workspace_users_roles_selection_list_form",
+     *     options={"expose"=true}
+     * )
+     * @EXT\ParamConverter("authenticatedUser", options={"authenticatedUser" = true})
+     * @EXT\Template("ClarolineWorkspaceUsersBundle:WorkspaceUsers:workspaceRolesSelectionListModalForm.html.twig")
+     */
+    public function workspaceRolesListFormAction(Workspace $workspace, $nbUsers)
+    {
+        $this->checkWorkspaceUsersToolEditionAccess($workspace);
+        $form = $this->formFactory->create(new WorkspaceRolesListType($workspace));
+
+        return array(
+            'workspace' => $workspace,
+            'nbUsers' => $nbUsers,
+            'form' => $form->createView()
+        );
+    }
+
+    /**
+     * @EXT\Route(
+     *     "workspace/{workspace}/users/nb/{nbUsers}/selected/roles/list",
+     *     name="claro_workspace_users_selected_workspace_roles_list",
+     *     options={"expose"=true}
+     * )
+     * @EXT\ParamConverter("authenticatedUser", options={"authenticatedUser" = true})
+     * @EXT\Template("ClarolineWorkspaceUsersBundle:WorkspaceUsers:workspaceRolesSelectionListModalForm.html.twig")
+     */
+    public function workspaceRolesSelectedListAction(Workspace $workspace, $nbUsers)
+    {
+        $this->checkWorkspaceUsersToolEditionAccess($workspace);
+        $form = $this->formFactory->create(new WorkspaceRolesListType($workspace));
+        $form->handleRequest($this->request);
+
+        if ($form->isValid()) {
+            $roles = $form->get('workspaceRoles')->getData();
+            $roleIds = array();
+
+            foreach ($roles as $role) {
+                $roleIds[] = $role->getId();
+            }
+
+            return new JsonResponse(
+                $roleIds,
+                200
+            );
+        } else {
+
+            return array(
+                'workspace' => $workspace,
+                'nbUsers' => $nbUsers,
+                'form' => $form->createView()
+            );
+        }
+    }
+
+    /**
+     * @EXT\Route(
+     *     "workspace/{workspace}/users/add/roles",
+     *     name="claro_workspace_users_add_roles",
+     *     options = {"expose"=true}
+     * )
+     * @EXT\Method("POST")
+     * @EXT\ParamConverter("authenticatedUser", options={"authenticatedUser" = true})
+     * @EXT\ParamConverter(
+     *     "users",
+     *      class="ClarolineCoreBundle:User",
+     *      options={"multipleIds" = true, "name" = "userIds"}
+     * )
+     * @EXT\ParamConverter(
+     *     "roles",
+     *      class="ClarolineCoreBundle:Role",
+     *      options={"multipleIds" = true, "name" = "roleIds"}
+     * )
+     */
+    public function workspaceUsersAddRoleAction(
+        Workspace $workspace,
+        array $users,
+        array $roles
+    )
+    {
+        $this->checkWorkspaceUsersToolEditionAccess($workspace);
+        $sessionFlashBag = $this->session->getFlashBag();
+        $this->roleManager->associateRolesToSubjects($users, $roles);
+        $sessionFlashBag->add(
+            'success',
+            $this->translator->trans('roles_association_success', array(), 'platform')
+        );
+
+        return new JsonResponse('success', 200);
     }
 
     /**
@@ -585,6 +703,17 @@ class WorkspaceUsersController extends Controller
             array('claroline_workspace_users_tool', 'edit'),
             $workspace
         )) {
+
+            throw new AccessDeniedException();
+        }
+    }
+    
+    private function checkWorkspaceUserEditionAccess(Workspace $workspace, User $user)
+    {
+        $workspaceUser = $this->workspaceUsersManager
+            ->getOneWorkspaceUserByWorkspaceAndUserAndCreated($workspace, $user, true);
+
+        if (is_null($workspaceUser)) {
 
             throw new AccessDeniedException();
         }

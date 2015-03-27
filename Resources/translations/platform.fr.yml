@@ -1,1 +1,3 @@
+roles_association_success: 'Les rôles ont été associés aux utilisateurs avec succès.'
 user_edition_success: 'Le compte utilisateur a été modifié avec succès.'
+users_deletion: 'Suppression d''utilisateur(s)'

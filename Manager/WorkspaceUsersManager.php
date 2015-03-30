@@ -223,29 +223,23 @@ class WorkspaceUsersManager
         Workspace $workspace,
         $search = '',
         $withMail = false,
-        $page = 1,
-        $max = 50,
         $orderedBy = 'id',
         $order = 'ASC'
     )
     {
-        if (empty($search)) {
-            $workspaceUsers =  $this->workspaceUserRepo->findWorkspaceUsersByWorkspace(
+        return empty($search) ?
+            $this->workspaceUserRepo->findWorkspaceUsersByWorkspace(
                 $workspace,
                 $orderedBy,
                 $order
-            );
-        } else {
-            $workspaceUsers = $this->workspaceUserRepo->findSearchedWorkspaceUsersByWorkspace(
+            ) :
+            $this->workspaceUserRepo->findSearchedWorkspaceUsersByWorkspace(
                 $workspace,
                 $search,
                 $withMail,
                 $orderedBy,
                 $order
             );
-        }
-
-        return $this->pagerFactory->createPagerFromArray($workspaceUsers, $page, $max);
     }
 
     public function getUsersByWorkspace(

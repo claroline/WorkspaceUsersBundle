@@ -157,8 +157,6 @@ class WorkspaceUsersController extends Controller
             $workspace,
             $search,
             $preferences['mail'],
-            $page,
-            $max,
             $orderedBy,
             $order
         );

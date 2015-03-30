@@ -46,7 +46,9 @@
 
 {% extends 'ClarolineCoreBundle:Workspace:layout.html.twig' %}
 
-{% block title %}{{ parent() ~ ' - ' ~ "users_list" | trans({}, "platform") | striptags | raw }}{% endblock %}
+{% block title %}
+    {{ parent() ~ ' - ' ~ "users_list" | trans({}, "platform") | striptags | raw }}
+{% endblock %}
 
 {% block breadcrumb %}
     {{
@@ -110,21 +112,26 @@
                                 <i class="fa fa-plus"></i>
                                 {{ 'create_user'|trans({}, 'platform') }}
                             </span>
-                            <a href="{{ path('claro_message_form_for_workspace', {'workspace': workspace.getId()}) }}"
+                            <a href="{{ path('claro_workspace_users_import', {'workspace': workspace.getId()}) }}"
                                class="btn btn-default dropdown-toggle"
-                               role="button"
                             >
-                                <i class="fa fa-envelope"></i>
-                                {{ 'send_message_to_workspace'|trans({}, 'platform') }}
+                                <i class="fa fa-sign-in"></i>
+                                {{ 'import_users'|trans({}, 'platform') }}
                             </a>
-                            <a class="btn btn-default action-button table-control"
-                                href="{{ path('claro_workspace_export_users', {'format': 'xls', 'workspace': workspace.getId()}) }}">
-                                {{ 'excel_export'|trans({}, 'platform') }}
-                            </a>
-                            <a class="btn btn-default action-button table-control"
-                                href="{{ path('claro_workspace_export_users', {'format': 'csv', 'workspace': workspace.getId()}) }}">
-                                {{ 'csv_export'|trans({}, 'platform') }}
-                            </a>
+                            <span class="btn btn-default dropdown-toggle workspace-user-management-btn disabled"
+                                  id="add-workspace-role-btn"
+                                  role="button"
+                            >
+                                <i class="fa fa-plus-circle"></i>
+                                {{ 'add_role'|trans({}, 'platform') }}
+                            </span>
+                            <span class="btn btn-default dropdown-toggle workspace-user-management-btn disabled"
+                                  id="delete-workspace-users-btn"
+                                  role="button"
+                            >
+                                <i class="fa fa-trash"></i>
+                                {{ 'delete'|trans({}, 'platform') }}
+                            </span>
                         </div>
                     </div>
                 {% endif %}
@@ -152,20 +159,21 @@
                 <div class="row">
                     <div class="col-md-8">
                         <div class="btn-group margin-bottom-md">
-                            <span class="btn btn-default dropdown-toggle workspace-user-management-btn disabled"
-                                  id="add-workspace-role-btn"
-                                  role="button"
+                            <a href="{{ path('claro_message_form_for_workspace', {'workspace': workspace.getId()}) }}"
+                               class="btn btn-default dropdown-toggle"
+                               role="button"
                             >
-                                <i class="fa fa-plus-circle"></i>
-                                {{ 'add_role'|trans({}, 'platform') }}
-                            </span>
-                            <span class="btn btn-default dropdown-toggle workspace-user-management-btn disabled"
-                                  id="delete-workspace-users-btn"
-                                  role="button"
-                            >
-                                <i class="fa fa-trash"></i>
-                                {{ 'delete'|trans({}, 'platform') }}
-                            </span>
+                                <i class="fa fa-envelope"></i>
+                                {{ 'send_message_to_workspace'|trans({}, 'platform') }}
+                            </a>
+                            <a class="btn btn-default action-button table-control"
+                                href="{{ path('claro_workspace_export_users', {'format': 'xls', 'workspace': workspace.getId()}) }}">
+                                {{ 'excel_export'|trans({}, 'platform') }}
+                            </a>
+                            <a class="btn btn-default action-button table-control"
+                                href="{{ path('claro_workspace_export_users', {'format': 'csv', 'workspace': workspace.getId()}) }}">
+                                {{ 'csv_export'|trans({}, 'platform') }}
+                            </a>
                         </div>
                     </div>
                     <div class="col-md-4 margin-bottom-md">

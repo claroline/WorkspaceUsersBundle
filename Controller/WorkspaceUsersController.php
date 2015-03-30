@@ -28,14 +28,17 @@ use Claroline\WorkspaceUsersBundle\Form\WorkspaceRolesListType;
 use Claroline\WorkspaceUsersBundle\Form\WorkspaceRoleType;
 use Claroline\WorkspaceUsersBundle\Form\WorkspaceUserCreationType;
 use Claroline\WorkspaceUsersBundle\Form\WorkspaceUserEditionType;
+use Claroline\WorkspaceUsersBundle\Form\WorkspaceUsersImportType;
 use Claroline\WorkspaceUsersBundle\Manager\WorkspaceUsersManager;
 use JMS\DiExtraBundle\Annotation as DI;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration as EXT;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\FormFactory;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\SecurityContextInterface;
 use Symfony\Component\Translation\TranslatorInterface;
@@ -50,6 +53,7 @@ class WorkspaceUsersController extends Controller
     private $resourceManager;
     private $rightsManager;
     private $roleManager;
+    private $router;
     private $securityContext;
     private $session;
     private $translator;
@@ -67,6 +71,7 @@ class WorkspaceUsersController extends Controller
      *     "resourceManager"           = @DI\Inject("claroline.manager.resource_manager"),
      *     "rightsManager"             = @DI\Inject("claroline.manager.rights_manager"),
      *     "roleManager"               = @DI\Inject("claroline.manager.role_manager"),
+     *     "router"                    = @DI\Inject("router"),
      *     "securityContext"           = @DI\Inject("security.context"),
      *     "session"                   = @DI\Inject("session"),
      *     "translator"                = @DI\Inject("translator"),
@@ -84,6 +89,7 @@ class WorkspaceUsersController extends Controller
         ResourceManager $resourceManager,
         RightsManager $rightsManager,
         RoleManager $roleManager,
+        RouterInterface $router,
         SecurityContextInterface $securityContext,
         SessionInterface $session,
         TranslatorInterface $translator,
@@ -100,6 +106,7 @@ class WorkspaceUsersController extends Controller
         $this->resourceManager = $resourceManager;
         $this->rightsManager = $rightsManager;
         $this->roleManager = $roleManager;
+        $this->router = $router;
         $this->securityContext = $securityContext;
         $this->session = $session;
         $this->translator = $translator;
@@ -150,8 +157,6 @@ class WorkspaceUsersController extends Controller
             $workspace,
             $search,
             $preferences['mail'],
-            $page,
-            $max,
             $orderedBy,
             $order
         );
@@ -181,6 +186,7 @@ class WorkspaceUsersController extends Controller
             'registered' => $registered
         );
     }
+
     /**
      * @EXT\Route(
      *     "workspace/{workspace}/roles/list/ordered/by/{orderedBy}/order/{order}/search/{search}",
@@ -734,6 +740,83 @@ class WorkspaceUsersController extends Controller
         $this->workspaceUserQueueManager->removeRegistrationQueue($workspaceRegistrationQueue);
 
         return new JsonResponse('success', 200);
+    }
+
+    /**
+     * @EXT\Route(
+     *     "workspace/{workspace}/users/import/form",
+     *     name="claro_workspace_users_import_form",
+     *     options = {"expose"=true}
+     * )
+     * @EXT\ParamConverter("authenticatedUser", options={"authenticatedUser" = true})
+     * @EXT\Template()
+     */
+    public function workspaceUsersImportFormAction(Workspace $workspace)
+    {
+        $this->checkWorkspaceUsersToolEditionAccess($workspace);
+        $form = $this->formFactory->create(new WorkspaceUsersImportType($workspace));
+
+        return array('workspace' => $workspace, 'form' => $form->createView());
+    }
+
+    /**
+     * @EXT\Route(
+     *     "workspace/{workspace}/users/import",
+     *     name="claro_workspace_users_import",
+     *     options = {"expose"=true}
+     * )
+     * @EXT\ParamConverter("authenticatedUser", options={"authenticatedUser" = true})
+     * @EXT\Template("ClarolineWorkspaceUsersBundle:WorkspaceUsers:workspaceUsersImportForm.html.twig")
+     */
+    public function workspaceUsersImportAction(Workspace $workspace)
+    {
+        $this->checkWorkspaceUsersToolEditionAccess($workspace);
+        $form = $this->formFactory->create(new WorkspaceUsersImportType($workspace));
+        $form->handleRequest($this->request);
+
+        if ($form->isValid()) {
+            $users = array();
+            $file = $form->get('file')->getData();
+            $sendMail = $form->get('sendMail')->getData();
+            $lines = str_getcsv(file_get_contents($file), PHP_EOL);
+
+            foreach ($lines as $line) {
+                $userLine = str_getcsv($line, ';');
+
+                if (count($userLine) >= 5) {
+                    $users[] = $userLine;
+                }
+            }
+            $roleUser = $this->roleManager->getRoleByName('ROLE_USER');
+            $max = $roleUser->getMaxUsers();
+            $total = $this->userManager->countUsersByRoleIncludingGroup($roleUser);
+
+            if ($total + count($users) > $max) {
+
+                return array(
+                    'workspace' => $workspace,
+                    'form' => $form->createView(),
+                    'error' => 'role_user unavailable'
+                );
+            }
+            $workspaceRoles = $form->get('workspaceRoles')->getData();
+            $this->workspaceUsersManager->importWorkspaceUsers(
+                $workspace,
+                $users,
+                $sendMail,
+                $workspaceRoles
+            );
+
+            return new RedirectResponse(
+                $this->router->generate(
+                    'claro_workspace_users_registered_user_list',
+                    array('workspace' => $workspace->getId())
+                )
+            );
+        } else {
+
+            return array('workspace' => $workspace, 'form' => $form->createView());
+        }
     }
 
     private function checkWorkspaceUsersToolAccess(Workspace $workspace)

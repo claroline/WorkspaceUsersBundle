@@ -100,9 +100,9 @@
                     "{{ search }}"
                 </div>
             {% endif %}
-            <div class="row">
-                
-                {% if canEdit %}
+            
+            {% if canEdit %}
+                <div class="row">
                     <div class="col-md-8">
                         <div class="btn-group margin-bottom-md">
                             <span class="btn btn-default dropdown-toggle"
@@ -118,44 +118,9 @@
                                 <i class="fa fa-sign-in"></i>
                                 {{ 'import_users'|trans({}, 'platform') }}
                             </a>
-                            <span class="btn btn-default dropdown-toggle workspace-user-management-btn disabled"
-                                  id="add-workspace-role-btn"
-                                  role="button"
-                            >
-                                <i class="fa fa-plus-circle"></i>
-                                {{ 'add_role'|trans({}, 'platform') }}
-                            </span>
-                            <span class="btn btn-default dropdown-toggle workspace-user-management-btn disabled"
-                                  id="delete-workspace-users-btn"
-                                  role="button"
-                            >
-                                <i class="fa fa-trash"></i>
-                                {{ 'delete'|trans({}, 'platform') }}
-                            </span>
                         </div>
                     </div>
-                {% endif %}
-                <div class="col-md-4 pull-right">
-                    <div class="input-group margin-bottom-md">
-                        <input class="form-control search-user"
-                               type="text"
-                               id="search-user-input"
-                               placeholder="{{ 'search'|trans({}, 'platform') }}"
-                               value="{{ search }}"
-                        >
-                        <span class="input-group-btn">
-                            <button class="filter btn btn-default search-user-btn"
-                                    type="button"
-                                    id="search-user-btn"
-                            >
-                                <i class="fa fa-search"></i>
-                            </button>
-                        </span>
-                    </div>
                 </div>
-            </div>
-                
-            {% if canEdit %}
                 <div class="row">
                     <div class="col-md-8">
                         <div class="btn-group margin-bottom-md">
@@ -176,19 +141,70 @@
                             </a>
                         </div>
                     </div>
+                    <div class="col-md-4 pull-right">
+                        <div class="input-group margin-bottom-md">
+                            <input class="form-control search-user"
+                                   type="text"
+                                   id="search-user-input"
+                                   placeholder="{{ 'search'|trans({}, 'platform') }}"
+                                   value="{{ search }}"
+                            >
+                            <span class="input-group-btn">
+                                <button class="filter btn btn-default search-user-btn"
+                                        type="button"
+                                        id="search-user-btn"
+                                >
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="btn-group margin-bottom-md">
+                            <span class="btn btn-default dropdown-toggle workspace-user-management-btn disabled"
+                                  id="add-workspace-role-btn"
+                                  role="button"
+                            >
+                                <i class="fa fa-plus-circle"></i>
+                                {{ 'add_role'|trans({}, 'platform') }}
+                            </span>
+                            <span class="btn btn-default dropdown-toggle workspace-user-management-btn disabled"
+                                  id="delete-workspace-users-btn"
+                                  role="button"
+                            >
+                                <i class="fa fa-trash"></i>
+                                {{ 'delete'|trans({}, 'platform') }}
+                            </span>
+                        </div>
+                    </div>
                     <div class="col-md-4 margin-bottom-md">
                         {{ maxResultsSelectBox(max, "$('#max-results-button').trigger('click');", 'users_per_page') }}
                     </div>
                 </div>
-
-                {% if pager.getNbPages() > 1 %}
-                    <div class="row">
-                        <div class="col-md-8">
-                            {{ renderPager(search, workspace.getId(), pager, max, orderedBy, order) }}
+            {% else %}
+                <div class="row">
+                    <div class="col-md-4 pull-right">
+                        <div class="input-group margin-bottom-md">
+                            <input class="form-control search-user"
+                                   type="text"
+                                   id="search-user-input"
+                                   placeholder="{{ 'search'|trans({}, 'platform') }}"
+                                   value="{{ search }}"
+                            >
+                            <span class="input-group-btn">
+                                <button class="filter btn btn-default search-user-btn"
+                                        type="button"
+                                        id="search-user-btn"
+                                >
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </span>
                         </div>
                     </div>
-                {% endif %}
-            {% else %}
+                </div>
                 <div class="row">
                     {% if pager.getNbPages() > 1 %}
                         <div class="col-md-8">

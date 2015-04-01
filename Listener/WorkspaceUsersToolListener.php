@@ -12,6 +12,8 @@
 namespace Claroline\WorkspaceUsersBundle\Listener;
 
 use Claroline\CoreBundle\Event\DisplayToolEvent;
+use Claroline\CoreBundle\Event\WorkspaceAddUserEvent;
+use Claroline\WorkspaceUsersBundle\Manager\WorkspaceUsersManager;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
@@ -23,20 +25,24 @@ class WorkspaceUsersToolListener
 {
     private $httpKernel;
     private $request;
+    private $workspaceUsersManager;
 
     /**
      * @DI\InjectParams({
-     *     "httpKernel"         = @DI\Inject("http_kernel"),
-     *     "requestStack"       = @DI\Inject("request_stack")
+     *     "httpKernel"            = @DI\Inject("http_kernel"),
+     *     "requestStack"          = @DI\Inject("request_stack"),
+     *     "workspaceUsersManager" = @DI\Inject("claroline.manager.workspace_users_manager")
      * })
      */
     public function __construct(
         HttpKernelInterface $httpKernel,
-        RequestStack $requestStack
+        RequestStack $requestStack,
+        WorkspaceUsersManager $workspaceUsersManager
     )
     {
         $this->httpKernel = $httpKernel;
         $this->request = $requestStack->getCurrentRequest();
+        $this->workspaceUsersManager = $workspaceUsersManager;
     }
 
     /**
@@ -54,5 +60,21 @@ class WorkspaceUsersToolListener
             ->handle($subRequest, HttpKernelInterface::SUB_REQUEST);
         $event->setContent($response->getContent());
         $event->stopPropagation();
+    }
+
+    /**
+     * @DI\Observe("claroline_workspace_register_user")
+     *
+     * @param WorkspaceAddUserEvent $event
+     */
+    public function onWorkspaceUserRegistration(WorkspaceAddUserEvent $event)
+    {
+        $role = $event->getRole();
+        $user = $event->getUser();
+        $workspace = $role->getWorkspace();
+
+        if (!is_null($workspace)) {
+            $this->workspaceUsersManager->addWorkspaceUser($workspace, $user, false);
+        }
     }
 }

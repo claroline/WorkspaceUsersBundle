@@ -28,6 +28,7 @@ class WorkspaceUsersImportType extends AbstractType
     {
         $this->workspace = $workspace;
     }
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $workspace = $this->workspace;

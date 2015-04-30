@@ -21,7 +21,6 @@ use Claroline\CoreBundle\Pager\PagerFactory;
 use Claroline\CoreBundle\Persistence\ObjectManager;
 use Claroline\WorkspaceUsersBundle\Entity\WorkspaceUser;
 use JMS\DiExtraBundle\Annotation as DI;
-use Symfony\Component\Security\Core\SecurityContextInterface;
 
 /**
  * @DI\Service("claroline.manager.workspace_users_manager")
@@ -32,7 +31,6 @@ class WorkspaceUsersManager
     private $pagerFactory;
     private $platformConfigHandler;
     private $roleManager;
-    private $securityContext;
     private $userManager;
     private $workspaceModelRepo;
     private $workspaceUserRepo;
@@ -43,8 +41,7 @@ class WorkspaceUsersManager
      *     "pagerFactory"          = @DI\Inject("claroline.pager.pager_factory"),
      *     "platformConfigHandler" = @DI\Inject("claroline.config.platform_config_handler"),
      *     "roleManager"           = @DI\Inject("claroline.manager.role_manager"),
-     *     "userManager"           = @DI\Inject("claroline.manager.user_manager"),
-     *     "securityContext"       = @DI\Inject("security.context")
+     *     "userManager"           = @DI\Inject("claroline.manager.user_manager")
      * })
      */
     public function __construct(
@@ -52,15 +49,13 @@ class WorkspaceUsersManager
         PagerFactory $pagerFactory,
         PlatformConfigurationHandler $platformConfigHandler,
         RoleManager $roleManager,
-        UserManager $userManager,
-        SecurityContextInterface $securityContext
+        UserManager $userManager
     )
     {
         $this->om = $om;
         $this->pagerFactory = $pagerFactory;
         $this->platformConfigHandler  = $platformConfigHandler;
         $this->roleManager = $roleManager;
-        $this->securityContext = $securityContext;
         $this->userManager = $userManager;
         $this->workspaceModelRepo =
             $om->getRepository('ClarolineCoreBundle:Model\WorkspaceModel');

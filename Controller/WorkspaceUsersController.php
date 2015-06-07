@@ -192,7 +192,7 @@ class WorkspaceUsersController extends Controller
      * )
      * @EXT\ParamConverter("authenticatedUser", options={"authenticatedUser" = true})
      * @EXT\Template()
-     * @SEC\PreAuthorize("canAccessWorkspace({'claroline_workspace_users_tool', 'edit'})")
+     * @SEC\PreAuthorize("canAccessWorkspace({'claroline_workspace_users_tool': 'edit'})")
      */
     public function workspaceRolesListAction(
         Workspace $workspace,
@@ -226,7 +226,7 @@ class WorkspaceUsersController extends Controller
      * )
      * @EXT\ParamConverter("authenticatedUser", options={"authenticatedUser" = true})
      * @EXT\Template()
-     * @SEC\PreAuthorize("canAccessWorkspace({'claroline_workspace_users_tool', 'edit'})")
+     * @SEC\PreAuthorize("canAccessWorkspace({'claroline_workspace_users_tool': 'edit'})")
      */
     public function workspacePendingUsersListAction(
         Workspace $workspace,
@@ -253,7 +253,7 @@ class WorkspaceUsersController extends Controller
      * )
      * @EXT\ParamConverter("authenticatedUser", options={"authenticatedUser" = true})
      * @EXT\Template("ClarolineWorkspaceUsersBundle:WorkspaceUsers:workspaceUserCreateModalForm.html.twig")
-     * @SEC\PreAuthorize("canAccessWorkspace({'claroline_workspace_users_tool', 'edit'})")
+     * @SEC\PreAuthorize("canAccessWorkspace({'claroline_workspace_users_tool': 'edit'})")
      */
     public function workspaceUserCreateFormAction(Workspace $workspace)
     {
@@ -278,7 +278,7 @@ class WorkspaceUsersController extends Controller
      * )
      * @EXT\ParamConverter("authenticatedUser", options={"authenticatedUser" = true})
      * @EXT\Template("ClarolineWorkspaceUsersBundle:WorkspaceUsers:workspaceUserCreateModalForm.html.twig")
-     * @SEC\PreAuthorize("canAccessWorkspace({'claroline_workspace_users_tool', 'edit'})")
+     * @SEC\PreAuthorize("canAccessWorkspace({'claroline_workspace_users_tool': 'edit'})")
      */
     public function workspaceUserCreateAction(Workspace $workspace)
     {
@@ -335,7 +335,7 @@ class WorkspaceUsersController extends Controller
      * )
      * @EXT\ParamConverter("authenticatedUser", options={"authenticatedUser" = true})
      * @EXT\Template("ClarolineWorkspaceUsersBundle:WorkspaceUsers:workspaceUserEditModalForm.html.twig")
-     * @SEC\PreAuthorize("canAccessWorkspace({'claroline_workspace_users_tool', 'edit'})")
+     * @SEC\PreAuthorize("canAccessWorkspace({'claroline_workspace_users_tool': 'edit'})")
      */
     public function workspaceUserEditFormAction(Workspace $workspace, User $user)
     {
@@ -361,7 +361,7 @@ class WorkspaceUsersController extends Controller
      * )
      * @EXT\ParamConverter("authenticatedUser", options={"authenticatedUser" = true})
      * @EXT\Template("ClarolineWorkspaceUsersBundle:WorkspaceUsers:workspaceUserEditModalForm.html.twig")
-     * @SEC\PreAuthorize("canAccessWorkspace({'claroline_workspace_users_tool', 'edit'})")
+     * @SEC\PreAuthorize("canAccessWorkspace({'claroline_workspace_users_tool': 'edit'})")
      */
     public function workspaceUserEditAction(Workspace $workspace, User $user)
     {
@@ -404,7 +404,7 @@ class WorkspaceUsersController extends Controller
      *      class="ClarolineCoreBundle:User",
      *      options={"multipleIds" = true, "name" = "userIds"}
      * )
-     * @SEC\PreAuthorize("canAccessWorkspace({'claroline_workspace_users_tool', 'edit'})")
+     * @SEC\PreAuthorize("canAccessWorkspace({'claroline_workspace_users_tool': 'edit'})")
      */
     public function workspaceUsersDeleteAction(Workspace $workspace, array $users)
     {
@@ -425,7 +425,7 @@ class WorkspaceUsersController extends Controller
      *      class="ClarolineCoreBundle:Role",
      *      options={"multipleIds" = true, "name" = "roleIds"}
      * )
-     * @SEC\PreAuthorize("canAccessWorkspace({'claroline_workspace_users_tool', 'edit'})")
+     * @SEC\PreAuthorize("canAccessWorkspace({'claroline_workspace_users_tool': 'edit'})")
      */
     public function workspaceAddExistingUserAction(
         Workspace $workspace,
@@ -452,7 +452,7 @@ class WorkspaceUsersController extends Controller
      * )
      * @EXT\ParamConverter("authenticatedUser", options={"authenticatedUser" = true})
      * @EXT\Template("ClarolineWorkspaceUsersBundle:WorkspaceUsers:workspaceRolesSelectionListModalForm.html.twig")
-     * @SEC\PreAuthorize("canAccessWorkspace({'claroline_workspace_users_tool', 'edit'})")
+     * @SEC\PreAuthorize("canAccessWorkspace({'claroline_workspace_users_tool': 'edit'})")
      */
     public function workspaceRolesListFormAction(Workspace $workspace, $nbUsers)
     {
@@ -473,7 +473,7 @@ class WorkspaceUsersController extends Controller
      * )
      * @EXT\ParamConverter("authenticatedUser", options={"authenticatedUser" = true})
      * @EXT\Template("ClarolineWorkspaceUsersBundle:WorkspaceUsers:workspaceRolesSelectionListModalForm.html.twig")
-     * @SEC\PreAuthorize("canAccessWorkspace({'claroline_workspace_users_tool', 'edit'})")
+     * @SEC\PreAuthorize("canAccessWorkspace({'claroline_workspace_users_tool': 'edit'})")
      */
     public function workspaceRolesSelectedListAction(Workspace $workspace, $nbUsers)
     {
@@ -520,7 +520,7 @@ class WorkspaceUsersController extends Controller
      *      class="ClarolineCoreBundle:Role",
      *      options={"multipleIds" = true, "name" = "roleIds"}
      * )
-     * @SEC\PreAuthorize("canAccessWorkspace({'claroline_workspace_users_tool', 'edit'})")
+     * @SEC\PreAuthorize("canAccessWorkspace({'claroline_workspace_users_tool': 'edit'})")
      */
     public function workspaceUsersAddRoleAction(
         Workspace $workspace,
@@ -546,7 +546,7 @@ class WorkspaceUsersController extends Controller
      * )
      * @EXT\ParamConverter("authenticatedUser", options={"authenticatedUser" = true})
      * @EXT\Template("ClarolineWorkspaceUsersBundle:WorkspaceUsers:workspaceRoleCreateModalForm.html.twig")
-     * @SEC\PreAuthorize("canAccessWorkspace({'claroline_workspace_users_tool', 'edit'})")
+     * @SEC\PreAuthorize("canAccessWorkspace({'claroline_workspace_users_tool': 'edit'})")
      */
     public function workspaceRoleCreateFormAction(Workspace $workspace)
     {
@@ -563,7 +563,7 @@ class WorkspaceUsersController extends Controller
      * )
      * @EXT\ParamConverter("authenticatedUser", options={"authenticatedUser" = true})
      * @EXT\Template("ClarolineWorkspaceUsersBundle:WorkspaceUsers:workspaceRoleCreateModalForm.html.twig")
-     * @SEC\PreAuthorize("canAccessWorkspace({'claroline_workspace_users_tool', 'edit'})")
+     * @SEC\PreAuthorize("canAccessWorkspace({'claroline_workspace_users_tool': 'edit'})")
      */
     public function workspaceRoleCreateAction(Workspace $workspace, User $authenticatedUser)
     {
@@ -646,7 +646,7 @@ class WorkspaceUsersController extends Controller
      * )
      * @EXT\ParamConverter("authenticatedUser", options={"authenticatedUser" = true})
      * @EXT\Template("ClarolineWorkspaceUsersBundle:WorkspaceUsers:workspaceRoleEditModalForm.html.twig")
-     * @SEC\PreAuthorize("canAccessWorkspace({'claroline_workspace_users_tool', 'edit'})")
+     * @SEC\PreAuthorize("canAccessWorkspace({'claroline_workspace_users_tool': 'edit'})")
      */
     public function workspaceRoleEditFormAction(Role $role, Workspace $workspace)
     {
@@ -670,7 +670,7 @@ class WorkspaceUsersController extends Controller
      * )
      * @EXT\ParamConverter("authenticatedUser", options={"authenticatedUser" = true})
      * @EXT\Template("ClarolineWorkspaceUsersBundle:WorkspaceUsers:workspaceRoleEditModalForm.html.twig")
-     * @SEC\PreAuthorize("canAccessWorkspace({'claroline_workspace_users_tool', 'edit'})")
+     * @SEC\PreAuthorize("canAccessWorkspace({'claroline_workspace_users_tool': 'edit'})")
      */
     public function workspaceRoleEditAction(Role $role, Workspace $workspace)
     {
@@ -703,7 +703,7 @@ class WorkspaceUsersController extends Controller
      *     name="claro_workspace_users_accept_pending_user",
      *     options={"expose"=true}
      * )
-     * @SEC\PreAuthorize("canAccessWorkspace({'claroline_workspace_users_tool', 'edit'})")
+     * @SEC\PreAuthorize("canAccessWorkspace({'claroline_workspace_users_tool': 'edit'})")
      */
     public function pendingUsersValidationAction(
         WorkspaceRegistrationQueue $workspaceRegistrationQueue,
@@ -726,7 +726,7 @@ class WorkspaceUsersController extends Controller
      *     name="claro_workspace_users_decline_pending_user",
      *     options={"expose"=true}
      * )
-     * @SEC\PreAuthorize("canAccessWorkspace({'claroline_workspace_users_tool', 'edit'})")
+     * @SEC\PreAuthorize("canAccessWorkspace({'claroline_workspace_users_tool': 'edit'})")
      */
     public function pendingUsersDeclineAction(
         WorkspaceRegistrationQueue $workspaceRegistrationQueue,
@@ -746,7 +746,7 @@ class WorkspaceUsersController extends Controller
      * )
      * @EXT\ParamConverter("authenticatedUser", options={"authenticatedUser" = true})
      * @EXT\Template()
-     * @SEC\PreAuthorize("canAccessWorkspace({'claroline_workspace_users_tool', 'edit'})")
+     * @SEC\PreAuthorize("canAccessWorkspace({'claroline_workspace_users_tool': 'edit'})")
      */
     public function workspaceUsersImportFormAction(Workspace $workspace)
     {
@@ -763,7 +763,7 @@ class WorkspaceUsersController extends Controller
      * )
      * @EXT\ParamConverter("authenticatedUser", options={"authenticatedUser" = true})
      * @EXT\Template("ClarolineWorkspaceUsersBundle:WorkspaceUsers:workspaceUsersImportForm.html.twig")
-     * @SEC\PreAuthorize("canAccessWorkspace({'claroline_workspace_users_tool', 'edit'})")
+     * @SEC\PreAuthorize("canAccessWorkspace({'claroline_workspace_users_tool': 'edit'})")
      */
     public function workspaceUsersImportAction(Workspace $workspace)
     {

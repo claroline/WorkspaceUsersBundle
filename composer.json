@@ -5,12 +5,11 @@
     "type": "claroline-plugin",
     "license": "GPL-3.0+",
     "require": {
-        "php": ">=5.4.1",
+        "php": ">=5.5",
         "claroline/core-bundle": "~6.0",
         "claroline/message-bundle": "~6.0"
     },
     "autoload": {
-        "psr-0": { "Claroline\\WorkspaceUsers": "" }
-    },
-    "target-dir": "Claroline/WorkspaceUsersBundle"
+        "psr-0": { "Claroline\\WorkspaceUsers\\": "" }
+    }
 }
